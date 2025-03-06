@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation para Deploy de React com S3 + CloudFront"
+
+Resources:
+
+  ## 🔹 Criando o Bucket S3 (Nome aleatório para evitar conflito)
+  ReactAppBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  ## 🔹 Criando o Origin Access Control (OAC) para S3
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: React-S3-OAC
+        Description: Controle de acesso do CloudFront ao S3
+        SigningProtocol: sigv4
+        SigningBehavior: always
+        OriginAccessControlOriginType: s3
+
+  ## 🔹 Criando a Política do S3 (Para permitir acesso apenas pelo CloudFront)
+  ReactAppBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ReactAppBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: "s3:GetObject"
+            Resource: !Sub "arn:aws:s3:::${ReactAppBucket}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+
+  ## 🔹 Criando Distribuição CloudFront (Aguarda S3 antes de iniciar)
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn: ReactAppBucket  # 🔥 Agora CloudFront espera o S3 ser criado
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt ReactAppBucket.RegionalDomainName
+            Id: S3Origin
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref CloudFrontOAC  # 🔥 Vincula com S3 via OAC
+        Enabled: true
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          ViewerProtocolPolicy: redirect-to-https
+          TargetOriginId: S3Origin
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+
+Outputs:
+  S3BucketName:
+    Description: "Nome do bucket S3 onde o React será hospedado"
+    Value: !Ref ReactAppBucket
+
+  CloudFrontURL:
+    Description: "URL do site React na CloudFront"
+    Value: !GetAtt CloudFrontDistribution.DomainName
