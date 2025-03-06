@@ -3,7 +3,7 @@ name: Deploy React to AWS S3 and CloudFront
 on:
   push:
     branches:
-      - main
+      - masert
 
 jobs:
   deploy:
