@@ -2,6 +2,7 @@
   "name": "front-exemplo",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://controle-lb-1142574128.us-east-2.elb.amazonaws.com"
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
