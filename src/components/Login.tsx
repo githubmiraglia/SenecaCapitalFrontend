@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { login } from "../api";
+import { TextField, Button, Box, Typography, Container, Alert, Paper } from "@mui/material";
 
 const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [username, setUsername] = useState<string>("");
@@ -14,20 +15,39 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
       localStorage.setItem("token", data.access);
       onLogin();
     } catch (err) {
-      setError("Erro ao autenticar");
+      setError("Erro ao autenticar. Verifique suas credenciais.");
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleLogin}>
-        <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Usuário" />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Senha" />
-        <button type="submit">Entrar</button>
-      </form>
-    </div>
+    <Container maxWidth="xs">
+      <Paper elevation={3} sx={{ padding: 4, mt: 8, textAlign: "center" }}>
+        <Typography variant="h5" gutterBottom>
+          Login
+        </Typography>
+        {error && <Alert severity="error">{error}</Alert>}
+        <Box component="form" onSubmit={handleLogin} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <TextField
+            label="Usuário"
+            variant="outlined"
+            fullWidth
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            label="Senha"
+            variant="outlined"
+            type="password"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button type="submit" variant="contained" color="primary" fullWidth>
+            Entrar
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 

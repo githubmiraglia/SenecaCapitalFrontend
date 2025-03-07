@@ -16,6 +16,25 @@ interface AuthResponse {
 
 // Função para login
 export const login = async (username: string, password: string): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>("/api/users/login/", { username, password });
+  const response = await api.post<AuthResponse>("/api/login/", { username, password });
   return response.data;
 };
+
+export const getProducts = async () => {
+    const response = await api.get("/api/products/", {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        });
+    return response.data;
+    };
+
+export const createProduct = async (product: any) => {
+    await api.post("/api/products/", product, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+
+    return;
+}
