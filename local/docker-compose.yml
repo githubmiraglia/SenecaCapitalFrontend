@@ -1,0 +1,12 @@
+services:
+  react:
+    image: exemplo-front:latest
+    build:
+      context: ../
+      dockerfile: local/Dockerfile
+    container_name: front
+    volumes:
+      - ../:/app
+    ports:
+      - "3000:3000"
+    command: sleep infinity 

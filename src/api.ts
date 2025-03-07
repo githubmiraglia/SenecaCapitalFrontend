@@ -16,6 +16,6 @@ interface AuthResponse {
 
 // Função para login
 export const login = async (username: string, password: string): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>("/api/token/", { username, password });
+  const response = await api.post<AuthResponse>("/api/users/login/", { username, password });
   return response.data;
 };
