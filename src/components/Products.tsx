@@ -15,7 +15,6 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-import axios from "axios";
 import { createProduct, getProducts } from "../api";
 
 type Product = {

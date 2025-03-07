@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
 import Products from "./components/Products";
 
 const App: React.FC = () => {
