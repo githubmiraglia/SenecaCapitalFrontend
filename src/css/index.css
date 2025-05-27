@@ -11,3 +11,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* center the loading text in the viewport, in white */
+.loading-fallback {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 1.25rem;
+  text-align: center;
+  z-index: 9999;
+}
+
+/* hide the loading text when the PDF is loaded */
+/*.react-pdf__Page__textContent {
+  display: none !important;
+}*/

@@ -1,0 +1,37 @@
+:root {
+  --logo-scale: 1.5; /* adjust this to scale the logo up or down */
+  --logo-base-size: 120px;
+}
+
+
+.login-page-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .login-page-left {
+    flex: 2;
+    position: relative;
+    background-image: url('/img/login-page.avif');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  #login-logo {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    width: calc(var(--logo-base-size) * var(--logo-scale));
+  }
+  
+  .login-page-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .submenu-paper {
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.6) !important;
+  }
+  

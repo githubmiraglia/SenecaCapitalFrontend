@@ -1,0 +1,12 @@
+/* src/css/Spreadsheet.css */
+.spreadsheet-container {
+  margin-left: 20px; /* adjust this value to match the logo's horizontal offset */
+}
+
+/* Spreadsheet.css */
+.spreadsheet-wrapper {
+  max-height: 90vh;
+  width: 95%;
+  margin-left: 0px;
+  overflow: auto;
+}

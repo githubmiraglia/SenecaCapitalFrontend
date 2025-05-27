@@ -1,0 +1,74 @@
+.permissoes-container {
+  width: 100%;
+  max-width: 580px;
+  margin: 2rem 3.5rem 2rem; /* ⬅ aligned top with Usuarios.tsx */
+  background: #f4f4f4;
+  padding: 2rem;
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.permissoes-container h2 {
+  text-align: left;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.permissoes-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.permissoes-group {
+  border-left: 3px solid #6495ed;
+  padding-left: 1rem;
+}
+
+.permissoes-inline-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.3rem 0;
+}
+
+.permissoes-label {
+  font-weight: bold;
+  color: #222;
+}
+
+.permissoes-subgroup {
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 2px dashed #ccc;
+  margin-top: 1rem;
+}
+
+.permissoes-subitem {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 1rem;
+  margin-left: 2rem;
+  margin-top: 0.4rem;
+  padding-left: 1rem;
+  border-left: 1px solid #ddd;
+}
+
+.label-text {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.permissoes-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.MuiFormControlLabel-root {
+  margin: 0 !important;
+}

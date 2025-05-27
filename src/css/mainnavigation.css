@@ -1,0 +1,135 @@
+/* ────────── MAIN NAVIGATION BAR ────────── */
+.mui-nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 4rem 3rem 2rem 3rem;
+  gap: 3rem;
+  background-color: transparent;
+  z-index: 10;
+  height: 100px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.nav-logo {
+  height: 60px;
+  margin-right: auto;
+  display: block;
+}
+
+.mui-nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: 400;
+  padding: 0.5rem 0;
+  position: relative;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.mui-nav-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: white;
+}
+
+.mui-nav-link::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: transparent;
+  z-index: 1;
+  transition: background-color 0.3s;
+}
+
+.mui-nav-link.hovered,
+.mui-nav-link:hover {
+  color: #6495ed;
+}
+
+.mui-nav-link.hovered::before,
+.mui-nav-link:hover::before {
+  background-color: #6495ed;
+}
+
+.mui-nav-link.active {
+  color: #add8e6;
+}
+
+.mui-nav-link:hover::after {
+  background-color: #6495ed;
+}
+
+.mui-nav-link.active::after {
+  top: auto;
+  bottom: -6px;
+  height: 3px;
+  background-color: #add8e6;
+}
+
+/* Disabled top-level nav */
+.mui-nav-link.disabled {
+  color: #888;
+  pointer-events: none;
+  cursor: default;
+}
+
+.mui-nav-link.disabled:hover {
+  color: #888;
+  text-decoration: none;
+}
+
+/* ────────── DROPDOWN MENU STYLING ────────── */
+
+.MuiMenu-paper {
+  background-color: #2f5d85 !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  margin-top: 6px !important;
+  padding: 0 !important;
+}
+
+.MuiMenuItem-root {
+  color: white !important;
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem !important;
+  margin: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background-clip: padding-box !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.MuiMenuItem-root:last-child {
+  border-bottom: none !important;
+}
+
+.MuiMenuItem-root:hover {
+  background-color: #6495ed !important;
+  color: white !important;
+  border: none !important;  
+}
+
+/* Disabled submenu items */
+.MuiMenuItem-root.disabled {
+  color: #888 !important;
+  pointer-events: none;
+  cursor: default !important;
+  background-color: transparent !important;
+}
+
+
+

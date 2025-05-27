@@ -1,0 +1,33 @@
+/* Main layout container */
+.usuarios-page-container {
+  display: flex;
+  gap: 2rem; /* Adds space between left and right columns */
+  align-items: flex-start;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Left column (Usuario form) */
+.usuarios-left-column {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* Right column (Permissoes + Acesso a Fundos) */
+.usuarios-right-column {
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+  align-items: flex-start;
+}
+
+/* Top section: Permissoes */
+.usuarios-right-top {
+  width: 100%;
+}
+
+/* Bottom section: Acesso_a_Fundos */
+.usuarios-right-bottom {
+  width: 100%;
+}

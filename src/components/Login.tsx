@@ -1,21 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { login } from "../api";
-import { TextField, Button, Box, Typography, Container, Alert, Paper } from "@mui/material";
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Container,
+  Alert,
+  Paper,
+} from "@mui/material";
+import { setUserContextFromLoginResponse, currentVariables } from "../variables/generalVariables";
 
-const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
-  const [username, setUsername] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+interface LoginProps {
+  onLogin: () => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>(""); // ✅ new
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+  console.log("🧩 LoginPage mounted and received onLogin");
+}, []);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    console.log("🚀 handleLogin triggered with email:", email);
+
     try {
-      const data = await login(username, password);
-      localStorage.setItem("token", data.access);
-      onLogin();
-    } catch (err) {
-      setError("Erro ao autenticar. Verifique suas credenciais.");
+      const data = await login(email, password);
+      console.log("🔐 Login API response:", data);
+
+      setUserContextFromLoginResponse(data);
+      console.log("📦 currentVariables after login set:", currentVariables);
+
+      console.log("📲 Calling onLogin from Login.tsx...");
+      console.log(onLogin);
+      onLogin(); // This should trigger handleLogin in App.tsx
+    } catch (err: any) {
+      console.error("❌ Login error caught:", err);
+      if (err.response?.status === 404) {
+        setError("Usuário não encontrado.");
+      } else if (err.response?.status === 401) {
+        setError("Senha incorreta.");
+      } else {
+        setError("Erro inesperado. Tente novamente.");
+      }
     }
   };
 
@@ -26,15 +59,22 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
           Login
         </Typography>
         {error && <Alert severity="error">{error}</Alert>}
-        <Box component="form" onSubmit={handleLogin} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box
+          component="form"
+          onSubmit={handleLogin}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
           <TextField
-            label="Usuário"
+            label="Email"
             variant="outlined"
+            type="email"
             fullWidth
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
           />
-          <TextField
+           <TextField
             label="Senha"
             variant="outlined"
             type="password"
@@ -42,7 +82,14 @@ const Login: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={() => console.log("🖱️ Submit button clicked")}
+          >
             Entrar
           </Button>
         </Box>
