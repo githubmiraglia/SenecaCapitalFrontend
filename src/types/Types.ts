@@ -44,3 +44,9 @@ export interface TreeNode {
   fullPath: string;
   children?: TreeNode[];
 }
+
+export interface Evento {
+  data: string;        // Format: "dd/mm/yyyy"
+  descricao: string;   // Description of the event
+  arquivo?: string;    // Optional URL to a PDF or document
+}

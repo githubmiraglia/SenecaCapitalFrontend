@@ -50,8 +50,7 @@ export const navigationMap = {
   calendario: {
     label: "Calendário",
     children: {
-      calendario_de_eventos: "Eventos",
-      calendario_de_votacoes: "Votacões",
+      calendario_de_eventos: "Eventos e Votações",
     },
   },  
   relatorios: {

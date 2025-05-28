@@ -1,0 +1,49 @@
+/* Calendario.css */
+
+.year-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.calendar-grid-no-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+}
+
+.calendar-cell {
+  flex: 1 1 calc(33.33% - 16px);
+  min-width: 300px;
+  box-sizing: border-box;
+}
+
+.evento-modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 80%;
+}
+
+.modal-link {
+  color: #888;
+  text-decoration: underline;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+/* highlight days with events */
+.event-day {
+  background-color: #e53935 !important;
+  color: white !important;
+}

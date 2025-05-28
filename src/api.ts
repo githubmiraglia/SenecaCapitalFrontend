@@ -284,7 +284,17 @@ export async function getCarteiraDoFundo(): Promise<CategoriaLinhas[]> {
   return response.data;
 }
 
+//TYPES FOR CALENDARIO DE EVENTOS
+export interface Evento {
+  data: string; // "dd/mm/yyyy"
+  descricao: string;
+  arquivo?: string;
+}
 
-
+// SESSAO PARA CALENDARIO
+export async function getCalendarioDeEventos(): Promise<Evento[]> {
+  const response = await api.get("/api/calendario-de-eventos");
+  return response.data;
+}
 
 
