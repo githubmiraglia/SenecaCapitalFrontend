@@ -1,6 +1,5 @@
-// src/components/Calendario.tsx
 import React, { useState } from "react";
-import { IconButton, Box, Typography } from "@mui/material";
+import { IconButton, Modal, Box, Typography } from "@mui/material";
 import {
   DateCalendar,
   PickersDay,
@@ -13,8 +12,6 @@ import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/pt-br";
 import { Evento } from "../types/Types";
 import "../css/Calendario.css";
-import { currentVariables } from "../variables/generalVariables";
-
 
 interface CalendarioProps {
   eventos: Evento[];
@@ -24,7 +21,6 @@ interface CalendarioProps {
 const Calendario: React.FC<CalendarioProps> = ({ eventos = [], onSelectArquivo }) => {
   const [currentYear, setCurrentYear] = useState<number>(dayjs().year());
   const [hoveredEvento, setHoveredEvento] = useState<Evento | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
 
   const isEventDay = (date: Dayjs): Evento | undefined => {
     return eventos?.find((evento) =>
@@ -32,43 +28,19 @@ const Calendario: React.FC<CalendarioProps> = ({ eventos = [], onSelectArquivo }
     );
   };
 
-    const handleDayClick = (date: Dayjs) => {
-    const evento = isEventDay(date);
-    if (evento?.arquivo) {
-        const fullPath = `${currentVariables.baseServerPath}/${evento.arquivo}`;
-        onSelectArquivo?.(fullPath);
-    } else {
-        onSelectArquivo?.("");
-        alert("Nenhum documento associado a este dia.");
-    }
-    };
-
-
   const renderDay = (props: PickersDayProps) => {
     const evento = isEventDay(props.day);
     return (
       <Box
-        onMouseEnter={(e) => {
-          if (evento) {
-            setHoveredEvento(evento);
-            setTooltipPosition({ top: e.clientY + 10, left: e.clientX + 10 });
-          }
-        }}
-        onMouseLeave={() => {
-          setHoveredEvento(null);
-          setTooltipPosition(null);
-        }}
-        onClick={() => handleDayClick(props.day)}
+        onMouseEnter={() => evento && setHoveredEvento(evento)}
+        onMouseLeave={() => setHoveredEvento(null)}
       >
         <PickersDay
           {...props}
           sx={{
-            backgroundColor: evento ? "#FFA3A3" : "white",
-            color: evento ? "black" : undefined,
+            backgroundColor: evento ? "#e53935" : "white",
+            color: evento ? "white" : undefined,
             borderRadius: "50%",
-            "&:hover": {
-              backgroundColor: evento ? "#FFA3A3" : "#f0f0f0",
-            },
           }}
         />
       </Box>
@@ -108,24 +80,24 @@ const Calendario: React.FC<CalendarioProps> = ({ eventos = [], onSelectArquivo }
         ))}
       </Box>
 
-      {/* Tooltip */}
-      {hoveredEvento && tooltipPosition && (
+      <Modal open={!!hoveredEvento} onClose={() => setHoveredEvento(null)}>
         <Box
-          className="tooltip-box"
-          style={{
-            top: tooltipPosition.top,
-            left: tooltipPosition.left,
-          }}
+          className="evento-modal"
+          onMouseEnter={() => {}}
+          onMouseLeave={() => setHoveredEvento(null)}
         >
-          <Typography variant="body1">{hoveredEvento.descricao}</Typography>
-          <Typography variant="body2" sx={{ mt: 1 }}>
-            {hoveredEvento.arquivo
-              ? "Clique no dia para ver documento associado"
-              : "Nenhum documento associado"}
-          </Typography>
+          <Typography variant="body1">{hoveredEvento?.descricao}</Typography>
+          {hoveredEvento?.arquivo && (
+            <Typography
+              variant="body2"
+              className="modal-link"
+              onClick={() => onSelectArquivo?.(hoveredEvento.arquivo!)}
+            >
+              Clique aqui para ver documento
+            </Typography>
+          )}
         </Box>
-
-      )}
+      </Modal>
     </LocalizationProvider>
   );
 };

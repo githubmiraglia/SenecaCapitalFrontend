@@ -39,7 +39,19 @@ const MainNav: React.FC<MainNavProps> = ({ userPermissions }) => {
   };
 
   const handleNavigate = (path: string) => {
-    navigate(`/${path}`);
+    const fullPath = `/${path}`;
+    const currentPath = window.location.pathname;
+
+    console.log(`Navigating to: ${fullPath} from current path: ${currentPath}`);
+
+    if (currentPath === fullPath) {
+      // Force re-navigation by first navigating away and then back
+      navigate("/temp", { replace: true });
+      setTimeout(() => navigate(fullPath), 0);
+    } else {
+      navigate(fullPath);
+    }
+
     handleCloseMenus();
   };
 

@@ -2,9 +2,11 @@ import React, { useRef, useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import "../css/rootlayout.css";
 import { getFundoName, getClasseName, currentVariables } from "../variables/generalVariables";
+import { useLocation } from "react-router-dom"; // Make sure this is imported
 
 const RootLayout: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [fundoName, setFundoName] = useState<string>("");
   const [classeName, setClasseName] = useState<string>("");
@@ -27,6 +29,8 @@ const RootLayout: React.FC = () => {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      //const isCalendarioRoute = location.pathname.startsWith("/calendario");
+      //if (isCalendarioRoute) return;
       if (
         overlayRef.current &&
         !overlayRef.current.contains(event.target as Node)

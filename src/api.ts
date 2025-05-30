@@ -2,6 +2,7 @@
 import axios from "axios";
 import { Product, ProductForm, UserPermissions, AcessoAFundos } from "./types/Types";
 import { TreeNode } from "./types/Types";
+import { currentVariables } from "./variables/generalVariables";
 
 // Base URL from Vite environment
 const API_URL = import.meta.env.VITE_API_URL;
@@ -207,11 +208,11 @@ export async function getFundosComClasses(): Promise<any> {
 
 // SESSAO PARA REPOSITORIOS
 // Get the folder structure under the root/fundo/classe
-export async function getRepositorioTree(fundo: string, classe: string): Promise<TreeNode> {
+export async function getRepositorioTree(): Promise<TreeNode> {
   const params = new URLSearchParams({
-    fundo,
-    classe,
+    basePath: currentVariables.baseServerPath,
   });
+  console.log("🌐 Sending GET to /relatorios/repositorio/lista with params:", params.toString())  ;
   const response = await api.get<TreeNode>(`/relatorios/repositorio/lista?${params.toString()}`);
   return response.data;
 }

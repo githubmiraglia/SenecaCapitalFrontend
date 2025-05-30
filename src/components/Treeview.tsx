@@ -28,10 +28,10 @@ const Treeview: React.FC<TreeviewProps> = ({ onSelectFile }) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const { fundoName } = currentVariables.fundo;
-    const { classeName } = currentVariables.classe;
+    //const { fundoName } = currentVariables.fundo;
+    //const { classeName } = currentVariables.classe;
 
-    getRepositorioTree(fundoName, classeName)
+    getRepositorioTree()
       .then((data) => setTreeData(data))
       .catch((err) => console.error("Erro ao carregar repositório:", err))
       .finally(() => setLoading(false));

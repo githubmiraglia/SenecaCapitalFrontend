@@ -64,6 +64,12 @@ const Classes: React.FC = () => {
   const handleSelect = (selected: Classe | null) => {
     if (selected) {
       setClasse(selected.id, selected.nome);
+      // ✅ Set baseServerPath
+      const formatName = (str: string) => str.toLowerCase().replace(/\s+/g, "_");
+      const fundoName = currentVariables.fundo.fundoName;
+      const classeName = selected.nome;
+      currentVariables.baseServerPath = `${formatName(fundoName)}/${formatName(classeName)}`;
+      //
       window.dispatchEvent(new Event("classeUpdated"));
       console.log("CURRENT VARIABLES", currentVariables);
       setTimeout(() => {

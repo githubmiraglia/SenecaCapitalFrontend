@@ -39,6 +39,8 @@ type FundoInfo = {
   session: {
     isAuthenticated: false,
   },
+
+  baseServerPath: "", 
 };
   
 export function setUserContextFromLoginResponse(data: {
