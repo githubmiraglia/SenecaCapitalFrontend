@@ -44,7 +44,7 @@ export const standardPermissions: UserPermissions = {
     acesso: true,
     edicao: true,
     children: {
-      cota: { acesso: true, edicao: true },
+      cotas: { acesso: true, edicao: true }, // ✅ corrected key
     },
   },
   carteira: {
@@ -61,7 +61,6 @@ export const standardPermissions: UserPermissions = {
     edicao: true,
     children: {
       calendario_de_eventos: { acesso: true, edicao: true },
-      calendario_de_votacoes: { acesso: true, edicao: true },
     },
   },
   relatorios: {
@@ -89,6 +88,22 @@ export const standardPermissions: UserPermissions = {
           investidorpage: { acesso: true, edicao: true },
         },
       },
+    },
+  },
+  politicas: {
+    acesso: true,
+    edicao: true,
+    children: {
+      politicas_da_gestora: { acesso: true, edicao: true },
+    },
+  },
+  tabelas: {
+    acesso: true,
+    edicao: true,
+    children: {
+      tabela_de_indexadores: { acesso: true, edicao: true },
+      tabela_de_ir: { acesso: true, edicao: true },
+      tabela_da_mae_joana: { acesso: true, edicao: true },
     },
   },
 };

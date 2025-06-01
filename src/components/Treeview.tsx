@@ -8,7 +8,7 @@ import { RichTreeView, TreeItem, TreeItemProps } from "@mui/x-tree-view";
 import FolderIcon from "@mui/icons-material/Folder";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import { getRepositorioTree } from "../api";
+import { getRepositorioTree, getPolicyFiles } from "../api";
 import { currentVariables } from "../variables/generalVariables";
 import "../css/Treeview.css";
 
@@ -21,21 +21,34 @@ export interface TreeNode {
 
 interface TreeviewProps {
   onSelectFile: (fullPath: string) => void;
+  mode?: "repositorio" | "politicas"; // optional, defaults to "repositorio"
+  title?: string; // optional title for the treeview
 }
 
-const Treeview: React.FC<TreeviewProps> = ({ onSelectFile }) => {
+const Treeview: React.FC<TreeviewProps> = ({ onSelectFile, mode = "repositorio", title = "Repositório de Documentos do Servidor" }) => {
   const [treeData, setTreeData] = useState<TreeNode | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    //const { fundoName } = currentVariables.fundo;
-    //const { classeName } = currentVariables.classe;
+    const fetchData = async () => {
+      try {
+        let data;
+        if (mode === "politicas") {
+          const path = currentVariables.baseServerPathForPolicies;
+          data = await getPolicyFiles(path);
+        } else {
+          data = await getRepositorioTree();
+        }
+        setTreeData(data);
+      } catch (err) {
+        console.error("Erro ao carregar árvore:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    getRepositorioTree()
-      .then((data) => setTreeData(data))
-      .catch((err) => console.error("Erro ao carregar repositório:", err))
-      .finally(() => setLoading(false));
-  }, []);
+      fetchData();
+  }, [mode]);
 
   const handleSelect = (
     _event: React.SyntheticEvent | null,
@@ -61,7 +74,7 @@ const Treeview: React.FC<TreeviewProps> = ({ onSelectFile }) => {
   return (
     <Box className="treeview-container">
       <Typography variant="h6" gutterBottom sx={{ color: "#1E88E5" }}>
-        Repositório de Documentos do Servidor
+        {title}
       </Typography>
       {loading ? (
         <CircularProgress />

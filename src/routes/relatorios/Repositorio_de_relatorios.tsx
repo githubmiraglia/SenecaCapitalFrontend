@@ -13,7 +13,7 @@ const RepositorioDeRelatorios: React.FC = () => {
       <Box className="repositorio-container">
         {/* Left: Treeview */}
         <Paper className="repositorio-sidebar">
-          <Treeview onSelectFile={setSelectedPDF} />
+          <Treeview onSelectFile={setSelectedPDF} mode="repositorio" title = "Repositório de Documentos do Servidor" />
         </Paper>
 
         {/* Right: PDF Viewer */}

@@ -50,13 +50,19 @@ export const navigationMap = {
   calendario: {
     label: "Calendário",
     children: {
-      calendario_de_eventos: "Eventos e Votações",
+      calendario_de_eventos: "Eventos",
     },
   },  
   relatorios: {
-    label: "Documentos e Relatórios",
+    label: "Documentos",
     children: {
       repositorio_de_relatorios: "Repositório",
+    },
+  },
+  politicas: {
+    label: "Politicas",
+    children: {
+      politicas_da_gestora: "Politicas da Gestora",
     },
   },
   cadastros: {
@@ -76,4 +82,12 @@ export const navigationMap = {
       },
     },
   },
-};
+  tabelas: {
+    label: "Tabelas",
+    children: {
+      tabela_de_indexadores: "Tabela de Indexadores",
+      tabela_de_ir: "Tabela de IR",
+      tabela_da_mae_joana: "Tabela da Mãe Joana",
+    },
+  },  
+}

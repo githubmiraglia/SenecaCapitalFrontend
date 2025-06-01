@@ -40,7 +40,9 @@ type FundoInfo = {
     isAuthenticated: false,
   },
 
-  baseServerPath: "", 
+  baseServerPath: "",
+  
+  baseServerPathForPolicies: "/politicas",
 };
   
 export function setUserContextFromLoginResponse(data: {

@@ -217,6 +217,13 @@ export async function getRepositorioTree(): Promise<TreeNode> {
   return response.data;
 }
 
+  export const getPolicyFiles = async (basePath: string) => {
+    const response = await api.get("/relatorios/repositorio/politicas", {
+      params: { basePath }
+    });
+    return response.data;
+  };
+
 // Fetch a file from the server
 export async function fetchFileFromServer(fullPath: string): Promise<Blob> {
   console.log("🌐 Sending POST to /upload with fullPath:", fullPath);
