@@ -101,9 +101,7 @@ export const standardPermissions: UserPermissions = {
     acesso: true,
     edicao: true,
     children: {
-      tabela_de_indexadores: { acesso: true, edicao: true },
-      tabela_de_ir: { acesso: true, edicao: true },
-      tabela_da_mae_joana: { acesso: true, edicao: true },
+      tabelas_do_servidor: { acesso: true, edicao: true },
     },
   },
 };

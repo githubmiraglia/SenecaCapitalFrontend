@@ -305,4 +305,44 @@ export async function getCalendarioDeEventos(): Promise<Evento[]> {
   return response.data;
 }
 
+// SESSAO PARA TABELAS DO SERVIDOR
+// ✅ Get list of available tables from the server
+export const getListaDeTabelas = async (): Promise<string[]> => {
+  const response = await api.get("/tabelas/tabelas-disponiveis");
+  return response.data;
+};
 
+// ✅ Get table data given a table name
+export const getDadosDaTabela = async (
+  nomeDaTabela: string
+): Promise<{ columns: string[]; data: (string | number | null)[][] }> => {
+  const response = await api.get("/tabelas/dados-da-tabela", {
+    params: { nomedatabela: nomeDaTabela },
+  });
+  return response.data;
+};
+
+
+// SESSAO PARA EXPORTAR E IMPORTAR DADOS DE SPREADSHEET
+export async function uploadSpreadsheetData(
+  data: Record<string, string | number | null>[],
+  headers: string[]
+): Promise<void> {
+  try {
+    const payload = {
+      headers,
+      data,
+    };
+
+    console.log("🌐 Enviando dados para /tabelas/upload-sheet:", payload);
+
+    const response = await api.post("/tabelas/upload-sheet", payload, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    console.log("✅ Dados enviados com sucesso:", response.data);
+  } catch (error) {
+    console.error("❌ Erro ao enviar dados:", error);
+    throw error;
+  }
+}

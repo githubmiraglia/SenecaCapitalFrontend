@@ -159,3 +159,19 @@ export function dateToExcelSerial(dateStr: string): number | null {
 
   return Math.floor(diffInMs / msPerDay);
 }
+
+/**
+ * Converts JSpreadsheet data and headers to JSON format for Pandas compatibility
+ */
+export function convertSpreadsheetToJSON(
+  headers: string[],
+  rows: (string | number | null)[][]
+): Record<string, string | number | null>[] {
+  return rows.map((row) => {
+    const rowObj: Record<string, string | number | null> = {};
+    headers.forEach((header, i) => {
+      rowObj[header] = row[i];
+    });
+    return rowObj;
+  });
+}

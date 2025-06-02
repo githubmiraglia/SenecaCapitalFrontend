@@ -85,9 +85,7 @@ export const navigationMap = {
   tabelas: {
     label: "Tabelas",
     children: {
-      tabela_de_indexadores: "Tabela de Indexadores",
-      tabela_de_ir: "Tabela de IR",
-      tabela_da_mae_joana: "Tabela da Mãe Joana",
+      tabelas_do_servidor: "Tabelas do Servidor",
     },
   },  
 }
