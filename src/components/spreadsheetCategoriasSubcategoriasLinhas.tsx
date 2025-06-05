@@ -1,5 +1,5 @@
 import React from "react";
-import Spreadsheet from "./Spreadsheet";
+import SpreadsheetAndChart from "./spreadsheetAndChart";
 import {
   applyRowStyle,
   rowStyleRightAligned,
@@ -43,7 +43,7 @@ const SpreadsheetCategoriasSubcategoriasLinhas: React.FC<SpreadsheetCategoriasPr
     Array.isArray(entry) ? entry : [entry]
   );
 
-  console.log("SpreadsheetDATA", normalizedData);
+  //console.log("SpreadsheetDATA", normalizedData);
 
   const columnCount = getMaxColumnsFlat(normalizedData);
 
@@ -128,11 +128,12 @@ const SpreadsheetCategoriasSubcategoriasLinhas: React.FC<SpreadsheetCategoriasPr
 
   return (
     <div className="spreadsheet-wrapper">
-      <Spreadsheet
-        data={rows}
+      <SpreadsheetAndChart
+        spreadsheetData={rows}
         columns={columns}
         style={style}
         worksheetName="Planilha"
+        spreadsheetRawData={spreadsheetData}
       />
     </div>
   );

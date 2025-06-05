@@ -1,0 +1,29 @@
+.layout-two-panel {
+  display: flex;
+  flex-direction: row;
+  height: 90%;
+  padding: 24px;
+  gap: 24px;
+  background-color: #f4f6f8;
+  border-radius: 8px;
+  margin-left: 24px; /* ✅ shifts entire container to the right */
+  overflow: hidden;
+}
+
+.left-panel {
+  flex: 2;
+  overflow: hidden;
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: white;
+  padding: 16px;
+  border-radius: 8px;
+}

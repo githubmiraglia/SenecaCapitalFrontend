@@ -25,6 +25,7 @@ interface SpreadsheetProps {
   }[];
   style?: Record<string, string>;
   worksheetName?: string;
+  onDataChange?: (newData: (string | number | null)[][]) => void; // ✅ New prop
 }
 
 export default function Spreadsheet({
@@ -32,6 +33,7 @@ export default function Spreadsheet({
   columns,
   style = {},
   worksheetName = "Planilha",
+  onDataChange,
 }: SpreadsheetProps) {
   const spreadsheet = useRef<any>(null);
   const [tableHeight, setTableHeight] = useState<string>("600");
@@ -59,22 +61,46 @@ export default function Spreadsheet({
     return toolbar;
   };
 
+const handleCellChange = (
+  instance: any,
+  cell: any,
+  x: number,
+  y: number,
+  value: string
+) => {
+  const newData = instance.getData();
+  if (onDataChange) {
+    onDataChange(newData);
+  }
+};
+
+const handleLoad = (instance: any) => {
+  console.log("✅ Spreadsheet loaded:", instance);
+  instance.jexcel?.setOnChange(handleCellChange);
+};
+
   useEffect(() => {
-    const vhHeight = Math.floor(window.innerHeight * 0.90);
+    const vhHeight = Math.floor(window.innerHeight * 0.9);
     setTableHeight(vhHeight.toString());
     const vhWidth = Math.floor(window.innerWidth);
-
     setTableWidth(vhWidth.toString());
+
     const timeout = setTimeout(() => {
       setReady(true);
     }, 50);
+
     return () => clearTimeout(timeout);
   }, []);
 
   return (
     <div className="spreadsheet-screen spreadsheet-active spreadsheet-container">
       {ready && (
-        <JSSpreadsheet ref={spreadsheet} toolbar={toolbar}>
+        <JSSpreadsheet 
+          ref={spreadsheet} 
+          toolbar={toolbar}
+          onchange={handleCellChange}
+          onload={handleLoad}
+        >
           <Worksheet
             data={data}
             columns={columns}

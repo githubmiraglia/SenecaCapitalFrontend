@@ -111,6 +111,16 @@ export function detectColumnTypes(carteira: CategoriaColuna[]): DetectedColumnTy
     } else if (hasBrDate || hasISODate) {
       type = "calendar";
       width = 140;
+      console.log("Detected date column:", col.categoria);
+      return {
+        title: col.categoria,
+        type,
+        width,
+        align: "right",
+        options: {
+          format: "DD/MM/YYYY", // <-- JSpreadsheet expects this inside options
+        },
+      };
     } else if (hasFormattedFloat || hasCurrencyLike || hasPercentage) {
       type = "number";
       decimal = ",";

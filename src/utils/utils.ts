@@ -140,24 +140,20 @@ export function getMaxColumnsFlat(data: any[]): number {
   return maxCols;
 }
 
-
-/**
- * Converts a date string in "dd/mm/yyyy" format to the corresponding Excel serial number.
-*/
 export function dateToExcelSerial(dateStr: string): number | null {
   const [day, month, year] = dateStr.split("/").map(Number);
   if (!day || !month || !year) return null;
 
-  // JS months are 0-based
-  const date = new Date(year, month - 1, day);
-  if (isNaN(date.getTime())) return null;
+  const jsDate = new Date(Date.UTC(year, month - 1, day));
+  if (isNaN(jsDate.getTime())) return null;
 
-  // Excel's base date is Jan 1, 1900, which is serial 1
-  const excelBase = new Date(1899, 11, 30); // Excel incorrectly treats 1900 as a leap year
-  const diffInMs = date.getTime() - excelBase.getTime();
-  const msPerDay = 1000 * 60 * 60 * 24;
+  // Excel starts at Jan 1, 1900 = serial 1, but internally counts from Dec 31, 1899
+  const excelEpoch = new Date(Date.UTC(1899, 11, 31)); // Dec 31, 1899
+  const diffInMs = jsDate.getTime() - excelEpoch.getTime();
+  const serial = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-  return Math.floor(diffInMs / msPerDay);
+  // Adjust for Excel’s fictitious leap year (Feb 29, 1900)
+  return serial >= 60 ? serial + 1 : serial;
 }
 
 /**
@@ -174,4 +170,62 @@ export function convertSpreadsheetToJSON(
     });
     return rowObj;
   });
+}
+
+/**
+ * Converts JSpreadsheet data and headers to chartrendered data format
+ */
+export function convertToChartData(
+  spreadsheetData: (string | number | null)[][]
+): { label: string; date: string; value: number }[] {
+  const chartData: { label: string; date: string; value: number }[] = [];
+
+  if (!spreadsheetData || spreadsheetData.length < 2) return chartData;
+
+  const headers = spreadsheetData[0].slice(1); // Skip the "Descrição" column
+
+  for (let i = 1; i < spreadsheetData.length; i++) {
+    const row = spreadsheetData[i];
+    const label = row[0];
+    if (typeof label !== "string" || !label.trim()) continue;
+
+    for (let j = 1; j < row.length; j++) {
+      const date = headers[j - 1] as string;
+      const value = row[j] ?? 0;
+      const numericValue = typeof value === "number" ? value : parseFloat(value as string) || 0;
+
+      chartData.push({ label, date, value: numericValue });
+    }
+  }
+
+  return chartData;
+}
+
+// Convert Excel serial date to "dd/mm/yy"
+export function excelToDateLabel(serial: number): string {
+  const date = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const year = String(date.getUTCFullYear()).slice(-2);
+  return `${day}/${month}/${year}`;
+}
+
+// Normalize an array of numbers to [0, 1]
+export function normalizeValues(values: number[]): number[] {
+  const max = Math.max(...values);
+  return max > 0 ? values.map((v) => v / max) : values;
+}
+
+/**
+ * Abbreviates a label by taking the first letter of each word
+ * and returning a string of those letters, e.g. "Conta de Luz" -> "CDL"
+ */
+export function abbreviateLabel(label: string): string {
+  if (label.length <= 10) return label;
+  const words = label
+    .split(/\s+/)
+    .filter(w => w.length > 2) // avoid short stopwords
+    .map(w => w[0].toUpperCase());
+
+  return words.join('');
 }

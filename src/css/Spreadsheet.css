@@ -6,7 +6,7 @@
 /* Spreadsheet.css */
 .spreadsheet-wrapper {
   max-height: 90vh;
-  width: 95%;
+  width: 98%;
   margin-left: 0px;
-  overflow: auto;
+  overflow: hidden;
 }
