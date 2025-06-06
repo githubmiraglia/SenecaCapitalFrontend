@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import SpreadsheetAndChart from "./spreadsheetAndChart";
 import {
   applyRowStyle,
@@ -6,6 +7,7 @@ import {
   dateToExcelSerial,
   getMaxColumnsFlat,
   setStyleColumns,
+  getDefaultChartFromPath,
 } from "../utils/utils";
 import {
   styleCategoria,
@@ -34,16 +36,19 @@ interface SpreadsheetCategoriasProps {
 const SpreadsheetCategoriasSubcategoriasLinhas: React.FC<SpreadsheetCategoriasProps> = ({
   spreadsheetData,
 }) => {
+  const location = useLocation();
+  const pathParts = location.pathname.split("/").filter(Boolean);
+
+  const defaultChart = getDefaultChartFromPath(pathParts);
+  console.log("📊 Resolved defaultChart from utils:", defaultChart);
+
   const rows: (string | number | null)[][] = [];
   const style: Record<string, string> = {};
   let rowIndex = 1;
 
-  // Normalize in case items are accidentally nested in arrays
   const normalizedData: CategoriaData[] = spreadsheetData.flatMap((entry: any) =>
     Array.isArray(entry) ? entry : [entry]
   );
-
-  //console.log("SpreadsheetDATA", normalizedData);
 
   const columnCount = getMaxColumnsFlat(normalizedData);
 
@@ -134,6 +139,7 @@ const SpreadsheetCategoriasSubcategoriasLinhas: React.FC<SpreadsheetCategoriasPr
         style={style}
         worksheetName="Planilha"
         spreadsheetRawData={spreadsheetData}
+        defaultChart={defaultChart}
       />
     </div>
   );

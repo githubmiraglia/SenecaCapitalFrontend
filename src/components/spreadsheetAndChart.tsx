@@ -12,7 +12,8 @@ interface Subcategoria {
 interface CategoriaData {
   categoria: string;
   dates?: string[];
-  subcategorias: Subcategoria[];
+  subcategorias?: Subcategoria[]; // optional for flexibility
+  linhas?: (string | number | null)[][];
   total: (string | number | null)[];
 }
 
@@ -35,7 +36,11 @@ interface SpreadsheetAndChartProps {
   }[];
   style?: Record<string, string>;
   worksheetName?: string;
-  spreadsheetRawData: CategoriaData[];
+  spreadsheetRawData: CategoriaData[] | CategoriaData[][];
+  defaultChart?: {
+    chart_type: string;
+    y_values: string[] | "NA";
+  };
 }
 
 const SpreadsheetAndChart: React.FC<SpreadsheetAndChartProps> = ({
@@ -44,15 +49,22 @@ const SpreadsheetAndChart: React.FC<SpreadsheetAndChartProps> = ({
   style = {},
   worksheetName = "Planilha",
   spreadsheetRawData,
+  defaultChart,
 }) => {
-  const [currentData, setCurrentData] = useState<(string | number | null)[][]>(
-    spreadsheetData
-  );
+  const [currentData, setCurrentData] = useState<
+    (string | number | null)[][]
+  >(spreadsheetData);
 
   const chartData: ChartPoint[] = useMemo(() => {
-    const result = convertToChartData(currentData);
-    return result;
+    return convertToChartData(currentData);
   }, [currentData]);
+
+  // Normalize spreadsheetRawData to CategoriaData[] for chart rendering
+  const normalizedRawData: CategoriaData[] = Array.isArray(spreadsheetRawData[0])
+    ? (spreadsheetRawData as CategoriaData[][]).flat()
+    : (spreadsheetRawData as CategoriaData[]);
+
+  console.log("📦 SpreadsheetAndChart received defaultChart:", defaultChart);
 
   return (
     <div className="layout-two-panel">
@@ -70,7 +82,8 @@ const SpreadsheetAndChart: React.FC<SpreadsheetAndChartProps> = ({
       <div className="right-panel">
         <ChartRenderer
           spreadsheetData={currentData}
-          spreadsheetRawData={spreadsheetRawData}
+          spreadsheetRawData={normalizedRawData}
+          defaultChart={defaultChart}
         />
       </div>
     </div>

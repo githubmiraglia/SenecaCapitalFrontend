@@ -1,5 +1,13 @@
 // src/utils/utils.ts
 
+// import needed for determing the default chart configuration below
+import { navigationMap } from "../variables/navigationMap";
+
+export interface DefaultChartConfig {
+  chart_type: string;
+  y_values: string[] | "NA";
+}
+
 /**
  * Format a Brazilian CPF as 000.000.000-00
  */
@@ -228,4 +236,29 @@ export function abbreviateLabel(label: string): string {
     .map(w => w[0].toUpperCase());
 
   return words.join('');
+}
+
+
+/**
+ * Resolves the default chart configuration from the current route path.
+ * @param pathParts An array of route path segments (e.g., ["demonstracoes", "balanco", "balanco_administrador"])
+ * @returns A DefaultChartConfig object or undefined if not found.
+ */
+export function getDefaultChartFromPath(pathParts: string[]): DefaultChartConfig | undefined {
+  if (pathParts.length === 0) return undefined;
+
+  let node: any = pathParts[0] in navigationMap
+    ? navigationMap[pathParts[0] as keyof typeof navigationMap]
+    : undefined;
+
+  for (let i = 1; i < pathParts.length; i++) {
+    const part = pathParts[i];
+    if (node && typeof node === "object" && "children" in node && part in node.children) {
+      node = node.children[part];
+    } else {
+      return undefined;
+    }
+  }
+
+  return node?.default_chart;
 }

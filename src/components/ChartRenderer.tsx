@@ -26,26 +26,45 @@ interface Subcategoria {
 interface CategoriaData {
   categoria: string;
   dates?: string[];
-  subcategorias: Subcategoria[];
+  subcategorias?: Subcategoria[];
+  linhas?: (string | number | null)[][];
   total: (string | number | null)[];
 }
 
 interface ChartRendererProps {
   spreadsheetData: (string | number | null)[][];
   spreadsheetRawData: CategoriaData[] | CategoriaData[][];
+  defaultChart?: {
+    chart_type: string;
+    y_values: string[] | "NA";
+  };
 }
 
 const ChartRenderer: React.FC<ChartRendererProps> = ({
   spreadsheetData,
   spreadsheetRawData,
+  defaultChart,
 }) => {
-  const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
+  const [chartType, setChartType] = useState<"bar" | "line" | "pie">(
+    defaultChart?.chart_type === "bar" || defaultChart?.chart_type === "pie"
+      ? defaultChart.chart_type
+      : "line"
+  );
+
   const [normalize, setNormalize] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
+  const [selectedLabels, setSelectedLabels] = useState<string[]>(
+    Array.isArray(defaultChart?.y_values) ? defaultChart.y_values : []
+  );
 
   const markerSymbols = [
-    "circle", "square", "triangle-up", "diamond", "cross", "x", "star",
+    "circle",
+    "square",
+    "triangle-up",
+    "diamond",
+    "cross",
+    "x",
+    "star",
   ];
 
   const dateLabels = useMemo(() => {
@@ -72,30 +91,35 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
       const dateIndex = dateLabels.indexOf(selectedDate);
       const subcategorySums: Record<string, number> = {};
 
-      flatData.forEach((categoria, idx) => {
-        if (!Array.isArray(categoria.subcategorias)) return;
-
-        categoria.subcategorias.forEach((sub) => {
+      flatData.forEach((categoria) => {
+        if (categoria.subcategorias) {
+          categoria.subcategorias.forEach((sub) => {
+            let sum = 0;
+            sub.linhas.forEach((linha) => {
+              const val = linha?.[dateIndex + 1];
+              if (typeof val === "number") sum += val;
+            });
+            if (sub.titulo) {
+              subcategorySums[sub.titulo] =
+                (subcategorySums[sub.titulo] || 0) + sum;
+            }
+          });
+        } else if (categoria.linhas) {
+          // Treat top-level lines as one subcategory
           let sum = 0;
-          if (!Array.isArray(sub.linhas)) return;
-
-          sub.linhas.forEach((linha) => {
+          categoria.linhas.forEach((linha) => {
             const val = linha?.[dateIndex + 1];
             if (typeof val === "number") sum += val;
           });
-
-          if (sub.titulo) {
-            subcategorySums[sub.titulo] =
-              (subcategorySums[sub.titulo] || 0) + sum;
-          }
-        });
+          subcategorySums[categoria.categoria] = sum;
+        }
       });
 
       const values = Object.values(subcategorySums);
       return [
         {
           type: "pie" as const,
-          labels: Object.keys(subcategorySums), // ✅ full labels for pie
+          labels: Object.keys(subcategorySums),
           values: normalize ? normalizeValues(values) : values,
         },
       ];
@@ -116,11 +140,13 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
     });
 
     return Object.entries(lines)
-      .filter(([label]) => selectedLabels.length === 0 || selectedLabels.includes(label))
+      .filter(([label]) =>
+        selectedLabels.length === 0 || selectedLabels.includes(label)
+      )
       .map(([label, y], index) => ({
         x: dateLabels,
         y,
-        name: abbreviateLabel(label), // ✅ abbreviation for line/bar
+        name: abbreviateLabel(label),
         ...(chartType === "line"
           ? {
               type: "scatter" as const,
@@ -191,7 +217,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
         )}
 
         {chartType === "pie" && (
-          <FormControl size="small" sx = {{ minWidth: 160 }}>
+          <FormControl size="small" sx={{ minWidth: 160 }}>
             <InputLabel>Data</InputLabel>
             <Select
               value={selectedDate || ""}
@@ -218,17 +244,17 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
         layout={{
           autosize: true,
           title: {
-          text:
-            chartType === "pie"
-              ? selectedDate
-                ? "Gráfico de Pizza"
-                : ""
-              : chartType === "line"
-              ? "Gráfico de Linhas"
-              : "Gráfico de Barras",
-          x: 0.005,
-          xanchor: "left",
-        },
+            text:
+              chartType === "pie"
+                ? selectedDate
+                  ? "Gráfico de Pizza"
+                  : ""
+                : chartType === "line"
+                ? "Gráfico de Linhas"
+                : "Gráfico de Barras",
+            x: 0.005,
+            xanchor: "left",
+          },
           margin: { t: 40, l: 50, r: 30, b: 50 },
         }}
         useResizeHandler

@@ -3,14 +3,17 @@ import { useNavigate, Outlet } from "react-router-dom";
 import { Box, Typography, Menu, MenuItem } from "@mui/material";
 import "../css/mainnavigation.css";
 import { navigationMap } from "../variables/navigationMap";
-import { UserPermissions, PermissionNode } from "../types/Types";
+import { UserPermissions } from "../types/Types";
 
 interface MainNavProps {
   userPermissions: UserPermissions;
 }
 
-const MainNav: React.FC<MainNavProps> = ({ userPermissions }) => {
+// Type guard to check for nested children
+const hasChildren = (node: any): node is { children: Record<string, any> } =>
+  typeof node === "object" && node !== null && "children" in node;
 
+const MainNav: React.FC<MainNavProps> = ({ userPermissions }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [submenuAnchorEl, setSubmenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -45,7 +48,6 @@ const MainNav: React.FC<MainNavProps> = ({ userPermissions }) => {
     console.log(`Navigating to: ${fullPath} from current path: ${currentPath}`);
 
     if (currentPath === fullPath) {
-      // Force re-navigation by first navigating away and then back
       navigate("/temp", { replace: true });
       setTimeout(() => navigate(fullPath), 0);
     } else {
@@ -58,50 +60,47 @@ const MainNav: React.FC<MainNavProps> = ({ userPermissions }) => {
   return (
     <>
       <Box className="mui-nav-container">
-        {Object.entries(navigationMap).map(([key, value]) => {
-          const topAccess = userPermissions[key]?.acesso;
-          const sectionPermissions = userPermissions[key]?.children ?? {};
+        {Object.entries(navigationMap).map(([sectionKey, sectionValue]) => {
+          const topAccess = userPermissions[sectionKey]?.acesso;
+          const sectionPermissions = userPermissions[sectionKey]?.children ?? {};
 
           const boxClass = [
             "mui-nav-link",
             !topAccess ? "disabled" : "",
-            openMenuKey === key ? "hovered" : ""
+            openMenuKey === sectionKey ? "hovered" : ""
           ].join(" ").trim();
 
           return (
             <Box
-              key={key}
+              key={sectionKey}
               className={boxClass}
-              onMouseEnter={(e) => handleMainHover(e, key)}
+              onMouseEnter={(e) => handleMainHover(e, sectionKey)}
             >
-              <Typography>{value.label}</Typography>
+              <Typography>{sectionValue.label}</Typography>
 
-              {topAccess && (
+              {topAccess && hasChildren(sectionValue) && (
                 <Menu
                   anchorEl={anchorEl}
-                  open={openMenuKey === key}
+                  open={openMenuKey === sectionKey}
                   onClose={handleCloseMenus}
                   anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                   transformOrigin={{ vertical: "top", horizontal: "left" }}
                 >
-                  {Object.entries(value.children).map(([subKey, subValue]) => {
-                    const label = typeof subValue === "string"
-                      ? subValue
-                      : "label" in subValue
-                        ? subValue.label
-                        : subKey;
-
-                    const hasNested = typeof subValue === "object" && subValue !== null && "children" in subValue;
-                    const submenuItems = hasNested ? Object.entries(subValue.children as Record<string, string>) : [];
+                  {Object.entries(sectionValue.children).map(([subKey, subValue]) => {
+                    const subLabel = subValue.label;
+                    const hasSubChildren = hasChildren(subValue);
+                    const submenuItems = hasSubChildren
+                      ? Object.entries(subValue.children)
+                      : [];
                     const submenuPermission = sectionPermissions[subKey];
 
-                    return hasNested ? (
+                    return hasSubChildren ? (
                       <MenuItem
                         key={subKey}
                         onClick={(e) => handleSubmenuClick(e, subKey)}
                         sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
                       >
-                        <span>{label}</span>
+                        <span>{subLabel}</span>
                         <span style={{ marginLeft: "0.5rem" }}>▾</span>
                         <Menu
                           anchorEl={submenuAnchorEl}
@@ -111,12 +110,16 @@ const MainNav: React.FC<MainNavProps> = ({ userPermissions }) => {
                           transformOrigin={{ vertical: "top", horizontal: "left" }}
                           slotProps={{ paper: { className: "submenu-paper" } }}
                         >
-                          {submenuItems.map(([nestedKey, nestedLabel]) => {
+                          {submenuItems.map(([nestedKey, nestedValue]) => {
+                            const nestedLabel = nestedValue.label;
                             const allowed = submenuPermission?.children?.[nestedKey]?.acesso;
+
                             return (
                               <MenuItem
                                 key={nestedKey}
-                                onClick={() => allowed && handleNavigate(`${key}/${subKey}/${nestedKey}`)}
+                                onClick={() =>
+                                  allowed && handleNavigate(`${sectionKey}/${subKey}/${nestedKey}`)
+                                }
                                 className={allowed ? "" : "disabled"}
                               >
                                 {nestedLabel}
@@ -130,11 +133,11 @@ const MainNav: React.FC<MainNavProps> = ({ userPermissions }) => {
                         key={subKey}
                         onClick={() =>
                           sectionPermissions[subKey]?.acesso &&
-                          handleNavigate(`${key}/${subKey}`)
+                          handleNavigate(`${sectionKey}/${subKey}`)
                         }
                         className={sectionPermissions[subKey]?.acesso ? "" : "disabled"}
                       >
-                        {label}
+                        {subLabel}
                       </MenuItem>
                     );
                   })}
