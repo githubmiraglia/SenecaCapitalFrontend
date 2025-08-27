@@ -41,19 +41,17 @@ export function formatCPF(value: string): string {
 /**
  * applies a style to rows in JSpreadsheet given a style object
 */
-export const applyRowStyle = (
-  styleObj: Record<string, string>,
-  row: number,
-  css: string,
-  columnCount: number
-) => {
-  const colLetters = Array.from({ length: columnCount }, (_, i) =>
-    String.fromCharCode(65 + i)
-  );
-  colLetters.forEach((col) => {
-    styleObj[`${col}${row}`] = css;
-  });
-};
+export function applyRowStyle(
+  style: Record<string, string>,
+  rowIndex: number,
+  className: string,
+  colCount: number
+) {
+  for (let col = 0; col < colCount; col++) {
+    style[`${rowIndex}-${col}`] = className;
+  }
+}
+
 
 /**
  * Applies a bold style to total rows in JSpreadsheet

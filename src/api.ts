@@ -1,96 +1,121 @@
 // src/api.ts
 import axios from "axios";
-import { Product, ProductForm, UserPermissions, AcessoAFundos } from "./types/Types";
+import {
+  Product,
+  ProductForm,
+  UserPermissions,
+  AcessoAFundos,
+} from "./types/Types";
 import { TreeNode } from "./types/Types";
 import { currentVariables } from "./variables/generalVariables";
 
-// Base URL from Vite environment
-const API_URL = import.meta.env.VITE_API_URL;
+// -------------------------------------------------------
+// Single axios instance
+// -------------------------------------------------------
+const BASE_URL =
+  import.meta.env.VITE_API_BASE ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:8000";
 
 export const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: BASE_URL,
+  headers: { "Content-Type": "application/json" },
 });
 
-// --- Permission-related types ---
+// Attach JWT automatically if present
+api.interceptors.request.use((config) => {
+  const token =
+    localStorage.getItem("access") ||  // preferred SimpleJWT key
+    localStorage.getItem("token") ||   // fallback
+    "";
+  if (token) {
+    config.headers = config.headers || {};
+    (config.headers as any).Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// -------------------------------------------------------
+// Save CNAB Layout (used by SpreadsheetLinhasSaltadas)
+// -------------------------------------------------------
+export async function saveCnabLayout(rows: any[][], name = ""): Promise<void> {
+  await api.post("/api/cnab-layout/save/", { rows, name });
+}
+
+// -------------------------------------------------------
+// Frontend user
+// -------------------------------------------------------
 export type PermissionValue = ["yes" | "no", Record<string, unknown>];
 export interface PermissionNode {
   acesso: boolean;
   edicao: boolean;
-  children?: {
-    [key: string]: PermissionNode;
-  };
+  children?: { [key: string]: PermissionNode };
 }
-
-// --- Auth / login response shape ---
-export interface AuthResponse {
-  access: string;
-  user: {
-    id: number;
-    nome: string;
-    sobrenome: string;
-    email: string;
-    userPermissions: UserPermissions;
-    acesso_a_fundos: AcessoAFundos;
-  };
+export interface FrontendUserResponse {
+  name: string;
+  userPermissions: UserPermissions;
+  acesso_a_fundos: AcessoAFundos;
 }
-
-// POST /login
-export const login = async (
-   email: string,
-   password: string
-): Promise<AuthResponse> => {
-  const response = await api.post<AuthResponse>(
-    "/login/",
-    { email, password },
-    { headers: { "Content-Type": "application/json" } }
-  );
+export const getFrontendUser = async (
+  username: string
+): Promise<FrontendUserResponse> => {
+  const token = localStorage.getItem("token");
+  const response = await api.get<FrontendUserResponse>("/api/frontend-user", {
+    params: { username },
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return response.data;
 };
 
-// --- User lookup response shape ---
+// -------------------------------------------------------
+// Auth
+// -------------------------------------------------------
+export interface AuthResponse {
+  access: string;
+  refresh: string;
+}
+export const login = async (
+  username: string,
+  password: string
+): Promise<AuthResponse> => {
+  const response = await api.post<AuthResponse>("/api/token/", {
+    username,
+    password,
+  });
+  return response.data;
+};
+
+// -------------------------------------------------------
+// Usuários (samples you already had)
+// -------------------------------------------------------
 export interface UsuarioResponse {
-    id: number;
-    nome: string;
-    sobrenome: string;
-    email: string;
-    cpf: string;
-    company: string;
-    cgc: string;
-    userPermissions: UserPermissions;
-    acesso_a_fundos: AcessoAFundos;
-}  
-
-
+  id: number;
+  nome: string;
+  sobrenome: string;
+  email: string;
+  cpf: string;
+  company: string;
+  cgc: string;
+  userPermissions: UserPermissions;
+  acesso_a_fundos: AcessoAFundos;
+}
 export type CheckUsuarioResponse = false | UsuarioResponse;
 
-// POST /usuarios/check
 export const checkUsuario = async (params: {
   email?: string;
   cpf?: string;
 }): Promise<CheckUsuarioResponse> => {
   try {
-    const response = await api.post<UsuarioResponse>(
-      "/usuarios/check",
-      params,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await api.post<UsuarioResponse>("/usuarios/check", params, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
     return response.data;
   } catch (err: any) {
-    if (axios.isAxiosError(err) && err.response?.status === 404) {
-      return false;
-    }
+    if (axios.isAxiosError(err) && err.response?.status === 404) return false;
     throw err;
   }
 };
 
-// payload for create/update user
 export interface UsuarioPayload {
   nome: string;
   sobrenome: string;
@@ -100,219 +125,168 @@ export interface UsuarioPayload {
   cgc: string;
   senha: string;
   userPermissions: UserPermissions;
-  acesso_a_fundos: {
-    [fundo: string]: {
-      classes: string[];
-    };
-  };
+  acesso_a_fundos: { [fundo: string]: { classes: string[] } };
 }
 
-// SESSAO PARA O USUARIO
-// POST /usuarios — create a new user
 export const createUsuario = async (
   payload: UsuarioPayload
 ): Promise<UsuarioResponse> => {
-  const response = await api.post<UsuarioResponse>(
-    "/usuarios",
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
+  const response = await api.post<UsuarioResponse>("/usuarios", payload, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
   return response.data;
 };
 
-// PUT /usuarios/:id — update an existing user
 export const updateUsuario = async (
   id: number,
   payload: UsuarioPayload
 ): Promise<UsuarioResponse> => {
-  const response = await api.put<UsuarioResponse>(
-    `/usuarios/${id}`,
-    payload,
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
-  );
+  const response = await api.put<UsuarioResponse>(`/usuarios/${id}`, payload, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  });
   return response.data;
 };
 
-// DELETE /usuarios/:id — delete a user
 export const deleteUsuario = async (
   id: number
 ): Promise<{ success: boolean; deletedId: number }> => {
   const response = await api.delete<{ success: boolean; deletedId: number }>(
     `/usuarios/${id}`,
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }
+    { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
   );
   return response.data;
 };
 
-
-//SESSAO PARA FUNDOS
-// src/api/api.ts
+// -------------------------------------------------------
+// Fundos / Classes (unchanged patterns)
+// -------------------------------------------------------
 export async function getFundoList(): Promise<{ id: string; nome: string }[]> {
   const response = await api.get("/api/fundos");
   return response.data;
 }
-
-export async function getClasseList(fundoID: string): Promise<{ id: string; nome: string }[]> {
-  const response = await api.get(`/api/classes?fundoID=${encodeURIComponent(fundoID)}`);
-  if (response.status !== 200) {
-    throw new Error("Erro ao buscar classes");
-  }
+export async function getClasseList(
+  fundoID: string
+): Promise<{ id: string; nome: string }[]> {
+  const response = await api.get(
+    `/api/classes?fundoID=${encodeURIComponent(fundoID)}`
+  );
+  if (response.status !== 200) throw new Error("Erro ao buscar classes");
   return response.data;
 }
-
 export const downloadPDF = async (fullPath: string): Promise<void> => {
   const response = await api.post(
     "/relatorios/repositorio/upload",
     { fullPath },
-    {
-      responseType: "blob",
-    }
+    { responseType: "blob" }
   );
-
   const blob = new Blob([response.data], { type: "application/pdf" });
-
-  // Extract filename from fullPath
   const fileName = fullPath.split(/[/\\]/).pop() || "documento.pdf";
-
-  // Create a download link
   const link = document.createElement("a");
   link.href = window.URL.createObjectURL(blob);
   link.download = fileName;
-  link.style.display = "none";
-
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 };
-
-
 export async function getFundosComClasses(): Promise<any> {
   const response = await fetch("http://localhost:5000/api/fundos-com-classes");
-  if (!response.ok) {
-    throw new Error("Failed to fetch fundos with classes");
-  }
+  if (!response.ok) throw new Error("Failed to fetch fundos with classes");
   return response.json();
 }
 
-// SESSAO PARA REPOSITORIOS
-// Get the folder structure under the root/fundo/classe
+// -------------------------------------------------------
+// Repositório
+// -------------------------------------------------------
 export async function getRepositorioTree(): Promise<TreeNode> {
   const params = new URLSearchParams({
     basePath: currentVariables.baseServerPath,
   });
-  console.log("🌐 Sending GET to /relatorios/repositorio/lista with params:", params.toString())  ;
-  const response = await api.get<TreeNode>(`/relatorios/repositorio/lista?${params.toString()}`);
+  const response = await api.get<TreeNode>(
+    `/relatorios/repositorio/lista?${params.toString()}`
+  );
   return response.data;
 }
-
-  export const getPolicyFiles = async (basePath: string) => {
-    const response = await api.get("/relatorios/repositorio/politicas", {
-      params: { basePath }
-    });
-    return response.data;
-  };
-
-// Fetch a file from the server
-export async function fetchFileFromServer(fullPath: string): Promise<Blob> {
-  console.log("🌐 Sending POST to /upload with fullPath:", fullPath);
-  const response = await api.post("/relatorios/repositorio/upload", { fullPath }, {
-    responseType: "blob",
-
+export const getPolicyFiles = async (basePath: string) => {
+  const response = await api.get("/relatorios/repositorio/politicas", {
+    params: { basePath },
   });
-  console.log("✅ Server responded with status", response.status);
+  return response.data;
+};
+export async function fetchFileFromServer(fullPath: string): Promise<Blob> {
+  const response = await api.post(
+    "/relatorios/repositorio/upload",
+    { fullPath },
+    { responseType: "blob" }
+  );
   return response.data;
 }
 
-// TYPES FOR SPREADSHEET DATA
+// -------------------------------------------------------
+// Spreadsheet/demonstrativos (unchanged)
+// -------------------------------------------------------
 export interface SubcategoriasLinhas {
   titulo: string;
   linhas: (string | number | null)[][];
 }
-
 export interface CategoriasSubcategoriasLinhas {
   categoria: string;
-  dates?: string[]; // Optional: array of column dates
+  dates?: string[];
   subcategorias: SubcategoriasLinhas[];
   total: (string | number | null)[];
 }
-
 export interface CategoriaLinhasDatas {
   categoria: string;
   linhas: (string | number | null)[][];
   total: (string | number | null)[];
-  dates?: string[]; // Optional header labels (e.g., month/year)
+  dates?: string[];
 }
-
 export interface CategoriaLinhas {
   categoria: string;
-  linhas: (string | number | null)[]; // now 1D array
+  linhas: [string, number][];
+  total: [string, number];
 }
 
-
-// SESSAO PARA DADOS DE DEMONSTRACOES
-// 1. balanco patrimonial
 export async function getBalancoPatrimonial(): Promise<CategoriasSubcategoriasLinhas> {
   const response = await api.get("/api/balanco-patrimonial");
   return response.data;
 }
-// 2. demonstrativo de resultados
 export async function getResultado(): Promise<CategoriasSubcategoriasLinhas> {
   const response = await api.get("/api/resultado");
   return response.data;
 }
-// 3. demonstrativo de fluxo de caixa
 export async function getFluxoDeCaixa(): Promise<CategoriasSubcategoriasLinhas> {
   const response = await api.get("/api/fluxo-de-caixa");
   return response.data;
 }
-
-//SESSAO PARA DADOS DE COTAS
-// 1. cotas
 export async function getCotas(): Promise<CategoriasSubcategoriasLinhas> {
   const response = await api.get("/api/cotas");
   return response.data;
 }
-
-//SESSAO PARA DADOS DE CARTEIRA
-// 1. carteira do fundo
 export async function getCarteiraDoFundo(): Promise<CategoriaLinhas[]> {
   const response = await api.get("/api/carteira-do-fundo");
   return response.data;
 }
 
-//TYPES FOR CALENDARIO DE EVENTOS
+// -------------------------------------------------------
+// Calendário
+// -------------------------------------------------------
 export interface Evento {
-  data: string; // "dd/mm/yyyy"
+  data: string;
   descricao: string;
   arquivo?: string;
 }
-
-// SESSAO PARA CALENDARIO
 export async function getCalendarioDeEventos(): Promise<Evento[]> {
   const response = await api.get("/api/calendario-de-eventos");
   return response.data;
 }
 
-// SESSAO PARA TABELAS DO SERVIDOR
-// ✅ Get list of available tables from the server
+// -------------------------------------------------------
+// Tabelas do servidor
+// -------------------------------------------------------
 export const getListaDeTabelas = async (): Promise<string[]> => {
   const response = await api.get("/tabelas/tabelas-disponiveis");
   return response.data;
 };
-
-// ✅ Get table data given a table name
 export const getDadosDaTabela = async (
   nomeDaTabela: string
 ): Promise<{ columns: string[]; data: (string | number | null)[][] }> => {
@@ -322,27 +296,29 @@ export const getDadosDaTabela = async (
   return response.data;
 };
 
-
-// SESSAO PARA EXPORTAR E IMPORTAR DADOS DE SPREADSHEET
+// -------------------------------------------------------
+// Spreadsheet upload (example you had)
+// -------------------------------------------------------
 export async function uploadSpreadsheetData(
   data: Record<string, string | number | null>[],
   headers: string[]
 ): Promise<void> {
-  try {
-    const payload = {
-      headers,
-      data,
-    };
-
-    console.log("🌐 Enviando dados para /tabelas/upload-sheet:", payload);
-
-    const response = await api.post("/tabelas/upload-sheet", payload, {
-      headers: { "Content-Type": "application/json" },
-    });
-
-    console.log("✅ Dados enviados com sucesso:", response.data);
-  } catch (error) {
-    console.error("❌ Erro ao enviar dados:", error);
-    throw error;
-  }
+  const payload = { headers, data };
+  await api.post("/tabelas/upload-sheet", payload, {
+    headers: { "Content-Type": "application/json" },
+  });
 }
+
+// -------------------------------------------------------
+// Leitor CNAB
+// -------------------------------------------------------
+export const uploadCnabLayoutPdf = async (formData: FormData) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Token não encontrado no localStorage");
+  return api.post("/api/ler-layout-cnab/", formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

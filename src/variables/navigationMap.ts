@@ -2,8 +2,8 @@ export const navigationMap = {
   fundo: {
     label: "Fundo",
     children: {
-      fundo: { label: "Escolha de Fundo" },
-      classes: { label: "Escolha de Classes" },
+      fundo: { label: "Dados do Fundo" },
+      classes: { label: "Classes" },
     },
   },
   demonstracoes: {
@@ -12,38 +12,23 @@ export const navigationMap = {
       balanco: {
         label: "Balanço",
         children: {
-          balanco_administrador: {
-            label: "Balanço Administrador",
-            default_chart: {
-              chart_type: "line",
-              y_values: ["Caixa", "Investimentos de longo prazo"],
-            },
-          },
+          balanco_administrador: { label: "Administrador" },
+          balanco_gerencial: { label: "Gerencial" },
         },
       },
       resultado: {
         label: "Resultado",
         children: {
-          resultado_administrador: {
-            label: "Resultado Administrador",
-            default_chart: {
-              chart_type: "line",
-              y_values: ["resultado do período"],
-            },
-          },
+          resultado_administrador: { label: "Administrador" },
+          resultado_gerencial: { label: "Gerencial" },
         },
       },
       fluxo_de_caixa: {
         label: "Fluxo de Caixa",
         children: {
           extrato: { label: "Extrato" },
-          reconciliacao_administrador: {
-            label: "Reconciliação Administrador",
-            default_chart: {
-              chart_type: "line",
-              y_values: ["saldo de caixa"],
-            },
-          },
+          reconciliacao_administrador: { label: "Reconc. Adm" },
+          reconciliacao_gerencial: { label: "Reconc. Ger" },
         },
       },
     },
@@ -51,21 +36,15 @@ export const navigationMap = {
   cotas: {
     label: "Cotas",
     children: {
-      cotas: {
-        label: "Cotas",
-        default_chart: {
-          chart_type: "line",
-          y_values: ["Valor da Cota Senior", "Valor da Cota Subordinada"],
-        },
-      },
+      cotas: { label: "Cotas" },
     },
   },
   carteira: {
     label: "Carteira",
     children: {
       carteira_do_fundo: { label: "Carteira" },
-      inadimplencia: { label: "Histórtico de Inadimplência" },
-      rolagem: { label: "Tabela de Rolagem" },
+      inadimplencia: { label: "Inadimplência" },
+      rolagem: { label: "Rolagem" },
     },
   },
   calendario: {
@@ -75,15 +54,9 @@ export const navigationMap = {
     },
   },
   relatorios: {
-    label: "Documentos",
+    label: "Relatórios",
     children: {
       repositorio_de_relatorios: { label: "Repositório" },
-    },
-  },
-  politicas: {
-    label: "Politicas",
-    children: {
-      politicas_da_gestora: { label: "Politicas da Gestora" },
     },
   },
   cadastros: {
@@ -92,21 +65,28 @@ export const navigationMap = {
       usuarios: {
         label: "Usuários",
         children: {
-          usuariospage: { label: "Gerenciar Usuários" },
+          usuariospage: { label: "Usuários" },
         },
       },
       investidor: {
         label: "Investidores",
         children: {
-          investidorpage: { label: "Gerenciar Investidores" },
+          investidorpage: { label: "Investidores" },
         },
       },
+    },
+  },
+  politicas: {
+    label: "Políticas",
+    children: {
+      politicas_da_gestora: { label: "Políticas da Gestora" },
     },
   },
   tabelas: {
     label: "Tabelas",
     children: {
       tabelas_do_servidor: { label: "Tabelas do Servidor" },
-    },
+      leitor_de_layout_de_cnab: { label: "Leitor de CNAB" },
+  },
   },
 };

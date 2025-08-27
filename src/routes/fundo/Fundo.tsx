@@ -1,94 +1,69 @@
 // src/routes/fundo/Fundo.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getFundoList } from "../../api";
+import { Autocomplete, TextField, Paper, Typography, Container } from "@mui/material";
 import { setFundo, currentVariables } from "../../variables/generalVariables";
-import {
-  Container,
-  Paper,
-  Typography,
-  Autocomplete,
-  TextField,
-  CircularProgress,
-} from "@mui/material";
-import "./Fundo.css";
 
 interface Fundo {
   id: string;
   nome: string;
 }
 
+// 🔹 Hardcoded fallback list
+const DEFAULT_FUNDOS: Fundo[] = [
+  { id: "1", nome: "Fundo FGR" },
+  { id: "2", nome: "Fundo 2" },
+  { id: "3", nome: "Fundo 3" },
+];
+
 const Fundo: React.FC = () => {
   const [fundos, setFundos] = useState<Fundo[]>([]);
   const [selectedFundo, setSelectedFundo] = useState<Fundo | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
-  //const  userChosenFunds = currentVariables.permissions.chosenFunds;
 
   useEffect(() => {
-    const fetchFundos = async () => {
-      try {
-        const list = await getFundoList();
-  
-        // Read chosenFunds from localStorage
-        const chosenFunds = currentVariables.permissions.chosenFunds;
+    const permissions = currentVariables.permissions;
 
-        // Filter only fundos where acesso === true
-        const filtered = list.filter((f) =>
-          chosenFunds?.[f.nome]?.acesso === true
-        );
-        setFundos(filtered);
-      } catch (error) {
-        console.error("Erro ao buscar fundos:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchFundos();
+    if (permissions?.chosenFunds) {
+      const fundosPermitidos = DEFAULT_FUNDOS.filter(f =>
+        permissions.chosenFunds[f.nome]?.acesso
+      );
+      setFundos(fundosPermitidos.length ? fundosPermitidos : DEFAULT_FUNDOS);
+    } else {
+      setFundos(DEFAULT_FUNDOS);
+    }
   }, []);
-  
 
-  const handleSelect = (selected: Fundo | null) => {
-    if (selected) {
-      setFundo(selected.id, selected.nome);
+  const handleSelect = (fundo: Fundo | null) => {
+    if (fundo) {
+      setSelectedFundo(fundo);
+      setFundo(fundo.id, fundo.nome);
       window.dispatchEvent(new Event("fundoUpdated"));
-      setTimeout(() => {
-        navigate("/");
-      }, 300);
+      navigate("/");
     }
   };
 
   return (
     <Container maxWidth="sm">
-      <Paper elevation={3} className="fundo-container">
+      <Paper style={{ padding: "2rem", marginTop: "4rem" }}>
         <Typography variant="h5" gutterBottom>
           Escolha de Fundo
         </Typography>
-        {loading ? (
-          <CircularProgress />
-        ) : (
         <Autocomplete
-            options={fundos}
-            value={selectedFundo}
-            onChange={(event, value) => {
-                if (value) {
-                setSelectedFundo(value);
-                handleSelect(value);
-                }
-            }}
-            getOptionLabel={(option) => option.nome}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            renderInput={(params) => (
-                <TextField {...params} label="Fundo" variant="outlined" />
-            )}
-            fullWidth
-            disablePortal
+          options={fundos}
+          value={selectedFundo}
+          onChange={(event, value) => handleSelect(value)}
+          getOptionLabel={(option) => option.nome}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          renderInput={(params) => (
+            <TextField {...params} label="Fundo" variant="outlined" />
+          )}
+          fullWidth
         />
-        )}
       </Paper>
     </Container>
   );
 };
 
 export default Fundo;
+

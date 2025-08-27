@@ -1,4 +1,3 @@
-/* ────────── MAIN NAVIGATION BAR ────────── */
 .mui-nav-container {
   display: flex;
   align-items: center;
@@ -6,10 +5,11 @@
   padding: 4rem 3rem 2rem 3rem;
   gap: 3rem;
   background-color: transparent;
-  z-index: 10;
+  z-index: 999; /* Increased from 10 */
   height: 100px;
   box-sizing: border-box;
   position: relative;
+  pointer-events: auto; /* Ensure events pass through */
 }
 
 .nav-logo {
@@ -76,7 +76,6 @@
   background-color: #add8e6;
 }
 
-/* Disabled top-level nav */
 .mui-nav-link.disabled {
   color: #888;
   pointer-events: none;
@@ -87,8 +86,6 @@
   color: #888;
   text-decoration: none;
 }
-
-/* ────────── DROPDOWN MENU STYLING ────────── */
 
 .MuiMenu-paper {
   background-color: #2f5d85 !important;
@@ -123,13 +120,10 @@
   border: none !important;  
 }
 
-/* Disabled submenu items */
 .MuiMenuItem-root.disabled {
   color: #888 !important;
   pointer-events: none;
   cursor: default !important;
   background-color: transparent !important;
 }
-
-
 

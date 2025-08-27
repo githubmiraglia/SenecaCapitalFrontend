@@ -3,151 +3,99 @@ import { useNavigate, Outlet } from "react-router-dom";
 import { Box, Typography, Menu, MenuItem } from "@mui/material";
 import "../css/mainnavigation.css";
 import { navigationMap } from "../variables/navigationMap";
-import { UserPermissions } from "../types/Types";
 
-interface MainNavProps {
-  userPermissions: UserPermissions;
-}
-
-// Type guard to check for nested children
-const hasChildren = (node: any): node is { children: Record<string, any> } =>
-  typeof node === "object" && node !== null && "children" in node;
-
-const MainNav: React.FC<MainNavProps> = ({ userPermissions }) => {
+const MainNav: React.FC = () => {
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [submenuAnchorEl, setSubmenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
-  const [openSubmenuKey, setOpenSubmenuKey] = useState<string | null>(null);
 
-  const handleMainHover = (event: React.MouseEvent<HTMLElement>, key: string) => {
-    if (userPermissions[key]?.acesso) {
-      setAnchorEl(event.currentTarget);
-      setOpenMenuKey(key);
-      setOpenSubmenuKey(null);
-      setSubmenuAnchorEl(null);
-    }
-  };
+  const [mainAnchorEl, setMainAnchorEl] = useState<HTMLElement | null>(null);
+  const [submenuAnchorEl, setSubmenuAnchorEl] = useState<HTMLElement | null>(null);
+  const [openMainKey, setOpenMainKey] = useState<string | null>(null);
+  const [openSubKey, setOpenSubKey] = useState<string | null>(null);
 
-  const handleSubmenuClick = (event: React.MouseEvent<HTMLElement>, subKey: string) => {
-    setSubmenuAnchorEl(event.currentTarget);
-    setOpenSubmenuKey((prev) => (prev === subKey ? null : subKey));
-  };
-
-  const handleCloseMenus = () => {
-    setAnchorEl(null);
+  const handleMainEnter = (event: React.MouseEvent<HTMLElement>, key: string) => {
+    setMainAnchorEl(event.currentTarget);
+    setOpenMainKey(key);
+    setOpenSubKey(null);
     setSubmenuAnchorEl(null);
-    setOpenMenuKey(null);
-    setOpenSubmenuKey(null);
   };
 
-  const handleNavigate = (path: string) => {
-    const fullPath = `/${path}`;
-    const currentPath = window.location.pathname;
+  const handleSubEnter = (event: React.MouseEvent<HTMLElement>, key: string) => {
+    setSubmenuAnchorEl(event.currentTarget);
+    setOpenSubKey(key);
+  };
 
-    console.log(`Navigating to: ${fullPath} from current path: ${currentPath}`);
+  const closeMenus = () => {
+    setMainAnchorEl(null);
+    setSubmenuAnchorEl(null);
+    setOpenMainKey(null);
+    setOpenSubKey(null);
+  };
 
-    if (currentPath === fullPath) {
-      navigate("/temp", { replace: true });
-      setTimeout(() => navigate(fullPath), 0);
-    } else {
-      navigate(fullPath);
-    }
-
-    handleCloseMenus();
+  const goTo = (path: string) => {
+    navigate(`/${path}`);
+    closeMenus();
   };
 
   return (
     <>
-      <Box className="mui-nav-container">
-        {Object.entries(navigationMap).map(([sectionKey, sectionValue]) => {
-          const topAccess = userPermissions[sectionKey]?.acesso;
-          const sectionPermissions = userPermissions[sectionKey]?.children ?? {};
+      <Box className="mui-nav-container" onMouseLeave={closeMenus}>
+        {Object.entries(navigationMap).map(([sectionKey, sectionValue]) => (
+          <Box
+            key={sectionKey}
+            className="mui-nav-link"
+            onMouseEnter={(e) => handleMainEnter(e, sectionKey)}
+          >
+            <Typography>{sectionValue.label}</Typography>
 
-          const boxClass = [
-            "mui-nav-link",
-            !topAccess ? "disabled" : "",
-            openMenuKey === sectionKey ? "hovered" : ""
-          ].join(" ").trim();
-
-          return (
-            <Box
-              key={sectionKey}
-              className={boxClass}
-              onMouseEnter={(e) => handleMainHover(e, sectionKey)}
+            <Menu
+              anchorEl={mainAnchorEl}
+              open={openMainKey === sectionKey}
+              onClose={closeMenus}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
+              MenuListProps={{
+                onMouseLeave: closeMenus,
+              }}
             >
-              <Typography>{sectionValue.label}</Typography>
+              {sectionValue.children &&
+                Object.entries(sectionValue.children).map(([subKey, subValue]) => {
+                  const hasSubChildren = subValue.children;
 
-              {topAccess && hasChildren(sectionValue) && (
-                <Menu
-                  anchorEl={anchorEl}
-                  open={openMenuKey === sectionKey}
-                  onClose={handleCloseMenus}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                  transformOrigin={{ vertical: "top", horizontal: "left" }}
-                >
-                  {Object.entries(sectionValue.children).map(([subKey, subValue]) => {
-                    const subLabel = subValue.label;
-                    const hasSubChildren = hasChildren(subValue);
-                    const submenuItems = hasSubChildren
-                      ? Object.entries(subValue.children)
-                      : [];
-                    const submenuPermission = sectionPermissions[subKey];
-
-                    return hasSubChildren ? (
-                      <MenuItem
-                        key={subKey}
-                        onClick={(e) => handleSubmenuClick(e, subKey)}
-                        sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                  return hasSubChildren ? (
+                    <MenuItem
+                      key={subKey}
+                      onMouseEnter={(e) => handleSubEnter(e, subKey)}
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      {subValue.label}
+                      <Menu
+                        anchorEl={submenuAnchorEl}
+                        open={openSubKey === subKey}
+                        onClose={closeMenus}
+                        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                        transformOrigin={{ vertical: "top", horizontal: "left" }}
+                        MenuListProps={{ onMouseLeave: closeMenus }}
                       >
-                        <span>{subLabel}</span>
-                        <span style={{ marginLeft: "0.5rem" }}>▾</span>
-                        <Menu
-                          anchorEl={submenuAnchorEl}
-                          open={openSubmenuKey === subKey}
-                          onClose={handleCloseMenus}
-                          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                          transformOrigin={{ vertical: "top", horizontal: "left" }}
-                          slotProps={{ paper: { className: "submenu-paper" } }}
-                        >
-                          {submenuItems.map(([nestedKey, nestedValue]) => {
-                            const nestedLabel = nestedValue.label;
-                            const allowed = submenuPermission?.children?.[nestedKey]?.acesso;
-
-                            return (
-                              <MenuItem
-                                key={nestedKey}
-                                onClick={() =>
-                                  allowed && handleNavigate(`${sectionKey}/${subKey}/${nestedKey}`)
-                                }
-                                className={allowed ? "" : "disabled"}
-                              >
-                                {nestedLabel}
-                              </MenuItem>
-                            );
-                          })}
-                        </Menu>
-                      </MenuItem>
-                    ) : (
-                      <MenuItem
-                        key={subKey}
-                        onClick={() =>
-                          sectionPermissions[subKey]?.acesso &&
-                          handleNavigate(`${sectionKey}/${subKey}`)
-                        }
-                        className={sectionPermissions[subKey]?.acesso ? "" : "disabled"}
-                      >
-                        {subLabel}
-                      </MenuItem>
-                    );
-                  })}
-                </Menu>
-              )}
-            </Box>
-          );
-        })}
+                        {Object.entries(subValue.children).map(([childKey, childValue]) => (
+                          <MenuItem
+                            key={childKey}
+                            onClick={() => goTo(`${sectionKey}/${subKey}/${childKey}`)}
+                          >
+                            {childValue.label}
+                          </MenuItem>
+                        ))}
+                      </Menu>
+                    </MenuItem>
+                  ) : (
+                    <MenuItem key={subKey} onClick={() => goTo(`${sectionKey}/${subKey}`)}>
+                      {subValue.label}
+                    </MenuItem>
+                  );
+                })}
+            </Menu>
+          </Box>
+        ))}
       </Box>
-
       <Outlet />
     </>
   );

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getClasseList } from "../../api";
-import { getFundoID, getFundoName, setClasse, currentVariables } from "../../variables/generalVariables";
+// import { getClasseList } from "../../api"; // 🔴 Not needed anymore
+import {
+  getFundoID,
+  getFundoName,
+  setClasse,
+  currentVariables,
+} from "../../variables/generalVariables";
 import {
   Container,
   Paper,
@@ -27,7 +32,7 @@ const Classes: React.FC = () => {
 
   useEffect(() => {
     const fundoID = getFundoID();
-    const fundoNome = getFundoName(); // Used to access permissions
+    const fundoNome = getFundoName();
 
     if (!fundoID || !fundoNome) {
       setError("FAVOR ESCOLHER FUNDO");
@@ -35,43 +40,23 @@ const Classes: React.FC = () => {
       return;
     }
 
-    const fetchClasses = async () => {
-      try {
-        const list = await getClasseList(fundoID);
-
-        // Load permissions from localStorage
-        const chosenFunds = currentVariables.permissions.chosenFunds;
-
-        const allowedClasses = Object.keys(
-          chosenFunds?.[fundoNome]?.classe || {}
-        ).filter(
-          (className) => chosenFunds[fundoNome].classe[className].acesso === true
-        );
-
-        const filtered = list.filter((c) => allowedClasses.includes(c.nome));
-        setClasses(filtered);
-      } catch (err) {
-        console.error("Erro ao buscar classes:", err);
-        setError("Erro ao carregar classes");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClasses();
+    // ✅ Hardcoded fallback class
+    const fakeClasse = { id: "1", nome: "Classe 1" };
+    setClasses([fakeClasse]);
+    setSelectedClasse(fakeClasse);
+    handleSelect(fakeClasse);
+    setLoading(false);
   }, []);
 
   const handleSelect = (selected: Classe | null) => {
     if (selected) {
       setClasse(selected.id, selected.nome);
-      // ✅ Set baseServerPath
       const formatName = (str: string) => str.toLowerCase().replace(/\s+/g, "_");
       const fundoName = currentVariables.fundo.fundoName;
       const classeName = selected.nome;
       currentVariables.baseServerPath = `${formatName(fundoName)}/${formatName(classeName)}`;
-      //
       window.dispatchEvent(new Event("classeUpdated"));
-      console.log("CURRENT VARIABLES", currentVariables);
+      console.log("✅ CURRENT VARIABLES", currentVariables);
       setTimeout(() => {
         navigate("/");
       }, 300);

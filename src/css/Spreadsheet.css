@@ -1,12 +1,11 @@
-/* src/css/Spreadsheet.css */
-.spreadsheet-container {
-  margin-left: 20px; /* adjust this value to match the logo's horizontal offset */
+.jexcel_container {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: auto;
+  font-size: 14px;
+  background-color: white;
 }
 
-/* Spreadsheet.css */
-.spreadsheet-wrapper {
-  max-height: 90vh;
-  width: 98%;
-  margin-left: 0px;
-  overflow: hidden;
+div[tabindex="0"] {
+  outline: none;
 }

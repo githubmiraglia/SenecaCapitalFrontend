@@ -25,7 +25,7 @@ interface SpreadsheetProps {
   }[];
   style?: Record<string, string>;
   worksheetName?: string;
-  onDataChange?: (newData: (string | number | null)[][]) => void; // ✅ New prop
+  onDataChange?: (newData: (string | number | null)[][]) => void;
 }
 
 export default function Spreadsheet({
@@ -36,20 +36,14 @@ export default function Spreadsheet({
   onDataChange,
 }: SpreadsheetProps) {
   const spreadsheet = useRef<any>(null);
-  const [tableHeight, setTableHeight] = useState<string>("600");
-  const [tableWidth, setTableWidth] = useState<string>("600");
+  const [tableHeight, setTableHeight] = useState("600");
+  const [tableWidth, setTableWidth] = useState("600");
   const [ready, setReady] = useState(false);
+
   const location = useLocation();
   const isInTabelasDoServidor = location.pathname.includes("/tabelas_do_servidor");
 
-  const handleExport = () => {
-    const headers = columns.map((col) => col.title);
-    const jsonData = convertSpreadsheetToJSON(headers, data);
-    uploadSpreadsheetData(jsonData, headers)
-      .then(() => alert("Dados exportados com sucesso!"))
-      .catch((err) => console.error("Erro ao exportar dados:", err));
-  };
-
+  // ✅ Toolbar customization
   const toolbar = (toolbar: any) => {
     if (isInTabelasDoServidor) {
       toolbar.items.push({
@@ -61,28 +55,32 @@ export default function Spreadsheet({
     return toolbar;
   };
 
-const handleCellChange = (
-  instance: any,
-  cell: any,
-  x: number,
-  y: number,
-  value: string
-) => {
-  const newData = instance.getData();
-  if (onDataChange) {
-    onDataChange(newData);
-  }
-};
+  // ✅ Export handler
+  const handleExport = () => {
+    const headers = columns.map((col) => col.title);
+    const jsonData = convertSpreadsheetToJSON(headers, spreadsheet.current?.jspreadsheet?.getData?.() ?? []);
+    uploadSpreadsheetData(jsonData, headers)
+      .then(() => alert("Dados exportados com sucesso!"))
+      .catch((err) => console.error("Erro ao exportar dados:", err));
+  };
 
-const handleLoad = (instance: any) => {
-  console.log("✅ Spreadsheet loaded:", instance);
-  instance.jexcel?.setOnChange(handleCellChange);
-};
+  // ✅ Cell change handler (calls prop function)
+  const handleCellChange = (
+    instance: any,
+    cell: any,
+    x: number,
+    y: number,
+    value: string
+  ) => {
+    const newData = instance.getData?.();
+    if (onDataChange) onDataChange(newData);
+  };
 
+  // ✅ Resize logic
   useEffect(() => {
     const vhHeight = Math.floor(window.innerHeight * 0.9);
-    setTableHeight(vhHeight.toString());
     const vhWidth = Math.floor(window.innerWidth);
+    setTableHeight(vhHeight.toString());
     setTableWidth(vhWidth.toString());
 
     const timeout = setTimeout(() => {
@@ -95,25 +93,24 @@ const handleLoad = (instance: any) => {
   return (
     <div className="spreadsheet-screen spreadsheet-active spreadsheet-container">
       {ready && (
-        <JSSpreadsheet 
-          ref={spreadsheet} 
+        <JSSpreadsheet
+          ref={spreadsheet}
           toolbar={toolbar}
           onchange={handleCellChange}
-          onload={handleLoad}
         >
           <Worksheet
             data={data}
             columns={columns}
             style={style}
             worksheetName={worksheetName}
-            tableOverflow={true}
-            tableWidth={tableWidth}
+            tableOverflow
             tableHeight={tableHeight}
+            tableWidth={tableWidth}
             minDimensions={[50, 50]}
             zoom={0.9}
             freezeColumns={1}
             freezeRows={0}
-            allowManualSort={true}
+            allowManualSort
           />
         </JSSpreadsheet>
       )}

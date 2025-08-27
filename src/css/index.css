@@ -5,6 +5,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+    height: 100%;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
 }
 
 code {
@@ -23,6 +27,7 @@ code {
   text-align: center;
   z-index: 9999;
 }
+
 
 /* hide the loading text when the PDF is loaded */
 /*.react-pdf__Page__textContent {

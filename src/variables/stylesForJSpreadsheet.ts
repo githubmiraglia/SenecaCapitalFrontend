@@ -42,3 +42,4 @@ export const styleRowOdd = `
   text-align: right;  
   padding-right: 8px;
 `;
+

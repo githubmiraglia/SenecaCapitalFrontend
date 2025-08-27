@@ -1,37 +1,81 @@
 :root {
-  --logo-scale: 1.5; /* adjust this to scale the logo up or down */
+  --logo-scale: 1.5;
   --logo-base-size: 120px;
 }
 
-
 .login-page-container {
-    display: flex;
-    height: 100vh;
-  }
-  
-  .login-page-left {
-    flex: 2;
-    position: relative;
-    background-image: url('/img/login-page.avif');
-    background-size: cover;
-    background-position: center;
-  }
-  
-  #login-logo {
-    position: absolute;
-    top: 24px;
-    left: 24px;
-    width: calc(var(--logo-base-size) * var(--logo-scale));
-  }
-  
-  .login-page-right {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .submenu-paper {
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.6) !important;
-  }
-  
+  display: flex;
+  height: 100vh;
+}
+
+.login-page-left {
+  flex: 2;
+  position: relative;
+  background-image: url("C:\Users\TomasVermehrenMiragl\Frontend\fronted\img\login-page.avif");
+  background-size: cover;
+  background-position: center;
+}
+
+#login-logo {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: calc(var(--logo-base-size) * var(--logo-scale));
+}
+
+.login-page-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  width: 80%;
+  max-width: 400px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form h2 {
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+  margin-bottom: 24px;
+  font-weight: 400; /* not bold */
+  color: #a0a0a0; /* light gray */
+}
+
+.login-form input {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.login-form button {
+  padding: 12px;
+  background-color: #1976d2;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.login-form button:hover {
+  background-color: #1565c0;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 12px;
+}

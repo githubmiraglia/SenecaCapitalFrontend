@@ -1,4 +1,5 @@
 import { UserPermissions } from "../types/Types";
+import { currentVariables } from "../variables/generalVariables";
 
 export const standardPermissions: UserPermissions = {
   fundo: {
@@ -44,7 +45,7 @@ export const standardPermissions: UserPermissions = {
     acesso: true,
     edicao: true,
     children: {
-      cotas: { acesso: true, edicao: true }, // ✅ corrected key
+      cotas: { acesso: true, edicao: true },
     },
   },
   carteira: {
@@ -102,6 +103,7 @@ export const standardPermissions: UserPermissions = {
     edicao: true,
     children: {
       tabelas_do_servidor: { acesso: true, edicao: true },
+      TodosOsDados: { acesso: true, edicao: true },
     },
   },
 };
@@ -109,3 +111,15 @@ export const standardPermissions: UserPermissions = {
 export const userChosenPermissions: UserPermissions = JSON.parse(
   JSON.stringify(standardPermissions)
 );
+
+export const hasPermission = (key: string): boolean => {
+  const keys = key.split(".");
+  let node: any = currentVariables?.user?.userPermissions || standardPermissions;
+
+  for (const part of keys) {
+    if (!node || !node[part]) return false;
+    node = node[part].children ?? node[part];
+  }
+
+  return node?.acesso === true;
+};

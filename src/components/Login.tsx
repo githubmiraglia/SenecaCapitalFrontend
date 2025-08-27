@@ -17,15 +17,15 @@ interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>(""); // ✅ new
+  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-  console.log("🧩 LoginPage mounted and received onLogin");
-}, []);
-
+    console.log("🧩 Login component mounted. onLogin received:", onLogin);
+  }, [onLogin]);
 
   const handleLogin = async (e: React.FormEvent) => {
+    console.log("🟢 SUBMITTING FORM"); // Confirm form is submitting
     e.preventDefault();
     setError(null);
     console.log("🚀 handleLogin triggered with email:", email);
@@ -39,7 +39,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
       console.log("📲 Calling onLogin from Login.tsx...");
       console.log(onLogin);
-      onLogin(); // This should trigger handleLogin in App.tsx
+      onLogin(); // Callback to App.tsx
     } catch (err: any) {
       console.error("❌ Login error caught:", err);
       if (err.response?.status === 404) {
@@ -70,11 +70,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             type="email"
             fullWidth
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
+            onChange={(e) => setEmail(e.target.value)}
           />
-           <TextField
+          <TextField
             label="Senha"
             variant="outlined"
             type="password"
@@ -82,13 +80,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-
           <Button
             type="submit"
             variant="contained"
             color="primary"
             fullWidth
-            onClick={() => console.log("🖱️ Submit button clicked")}
+            onClick={() => console.log("🖱️ Entrar button clicked")}
           >
             Entrar
           </Button>
