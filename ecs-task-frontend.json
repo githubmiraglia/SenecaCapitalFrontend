@@ -20,7 +20,7 @@
       "environment": [
         {
           "name": "API_URL",
-          "value": "http://seneca-backend.local" 
+          "value": "http://seneca-lb-1527625294.us-east-2.elb.amazonaws.com"
         }
       ],
       "logConfiguration": {
