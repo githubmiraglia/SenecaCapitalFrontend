@@ -2,14 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="./favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Web site created using Vite + React"
     />
-    <link rel="apple-touch-icon" href="/logo192.png" />
+    <link rel="apple-touch-icon" href="./logo192.png" />
 
     <!-- JSuites CSS (for toolbar icons/fonts) -->
     <link
@@ -17,7 +17,10 @@
       href="https://unpkg.com/jsuites@4/dist/jsuites.css"
     />
 
-    <link rel="stylesheet" href=" https://fonts.googleapis.com/css?family=Material+Icons" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Material+Icons"
+    />
 
     <!-- JSpreadsheet Pro CSS -->
     <link
@@ -29,6 +32,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
+    <!-- 🔑 caminho relativo para o Vite resolver corretamente -->
+    <script type="module" src="./src/index.tsx"></script>
   </body>
 </html>
