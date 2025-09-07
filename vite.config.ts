@@ -4,15 +4,14 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  base: "./",  // ✅ ensures assets resolve as relative paths
   optimizeDeps: {
     include: ["pdfjs-dist/build/pdf.worker.mjs"],
   },
   define: {
-    global: {}, // ✅ Fixes "global is not defined" for plotly.js-dist-min
+    global: {},
   },
   server: {
     port: 3000,
   },
-  // 🔑 Ensure assets are served relative to index.html
-  base: "./",
 });
