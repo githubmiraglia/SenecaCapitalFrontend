@@ -79,7 +79,7 @@ const RootLayout: React.FC = () => {
       <div className="sidebar">
         <img
           id="root-logo"
-          src="/img/Seneca Asset - Logo Transparente Branco.avif"
+          src="/public/img/Seneca Asset - Logo Transparente Branco.avif"
           alt="Logo"
         />
         {(fundoName || classeName) && (

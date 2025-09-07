@@ -48,7 +48,7 @@ const LoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
       <div className="login-page-left">
         <img
           id="login-logo"
-          src="/img/Seneca Asset - Logo Transparente Branco.avif"
+          src="/public/img/Seneca Asset - Logo Transparente Branco.avif"
           alt="Logo"
         />
       </div>
