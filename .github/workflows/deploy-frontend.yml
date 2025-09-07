@@ -16,9 +16,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWSKEY }}
-          aws-secret-access-key: ${{ secrets.AWSSECRET }}
-          aws-region: us-east-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -27,7 +27,7 @@ jobs:
       - name: Build, tag, and push frontend image
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_REPO=$ACCOUNT_ID.dkr.ecr.${{ secrets.AWSREGION }}.amazonaws.com/seneca-frontend:latest
+          ECR_REPO=$ACCOUNT_ID.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/seneca-frontend:latest
           echo "Building and pushing $ECR_REPO"
           docker build --no-cache -t seneca-frontend .
           docker tag seneca-frontend:latest $ECR_REPO
@@ -36,7 +36,7 @@ jobs:
       - name: Fill in new image ID in ECS task definition
         run: |
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          ECR_REPO=$ACCOUNT_ID.dkr.ecr.${{ secrets.AWSREGION }}.amazonaws.com/seneca-frontend:latest
+          ECR_REPO=$ACCOUNT_ID.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/seneca-frontend:latest
           cat ecs-task-frontend.json | jq --arg IMAGE "$ECR_REPO" \
             '.containerDefinitions[0].image = $IMAGE' > ecs-task-frontend-updated.json
 
@@ -48,4 +48,4 @@ jobs:
             --cluster seneca-cluster \
             --service seneca-frontend-service \
             --force-new-deployment \
-            --region ${{ secrets.AWSREGION }}
+            --region ${{ secrets.AWS_REGION }}
