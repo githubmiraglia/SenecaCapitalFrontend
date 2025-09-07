@@ -1,11 +1,58 @@
-.jexcel_container {
-  width: 100% !important;
-  height: 100% !important;
-  overflow: auto;
-  font-size: 14px;
-  background-color: white;
+/* Wrapper */
+.spreadsheet-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1850px;
+  padding: 20px;
 }
 
-div[tabindex="0"] {
-  outline: none;
+/* Container */
+.spreadsheet-box {
+  width: 1850px;
+  height: 650px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* JSpreadsheet container */
+.jss_container {
+  flex: 1;
+  width: 100% !important;
+  height: 100% !important;
+  background: #fff !important;
+  color: #000 !important;
+  overflow: auto !important;
+}
+
+/* JSpreadsheet table */
+.jss_table {
+  width: 100% !important;          /* stretch across container */
+  table-layout: fixed !important;  /* equal distribution */
+  background: #fff !important;
+}
+
+/* Headers + cells */
+.jss_container td,
+.jss_container th {
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 1px solid #ddd !important;
+  white-space: nowrap;
+  padding: 6px 8px;
+  font-size: 14px;
+
+  /* 👇 Ensure columns expand equally */
+  width: auto !important;
+}
+
+/* Toolbar */
+.jss_toolbar {
+  background-color: #fff !important;
+  color: #000 !important;
+  border-bottom: 1px solid #ddd;
 }

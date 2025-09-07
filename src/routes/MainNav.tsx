@@ -53,9 +53,7 @@ const MainNav: React.FC = () => {
               onClose={closeMenus}
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               transformOrigin={{ vertical: "top", horizontal: "left" }}
-              MenuListProps={{
-                onMouseLeave: closeMenus,
-              }}
+              MenuListProps={{ onMouseLeave: closeMenus }}
             >
               {sectionValue.children &&
                 Object.entries(sectionValue.children).map(([subKey, subValue]) => {

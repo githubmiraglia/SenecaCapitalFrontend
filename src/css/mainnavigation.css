@@ -127,3 +127,9 @@
   background-color: transparent !important;
 }
 
+/* Prevent hidden MUI overlays from blocking clicks */
+.MuiModal-root[aria-hidden="true"],
+.MuiPopover-root[aria-hidden="true"],
+.MuiMenu-root[aria-hidden="true"] {
+  pointer-events: none !important;
+}

@@ -1,9 +1,9 @@
 // src/components/LoginPage.tsx
 import React, { useState } from "react";
-import axios from "axios";
 import "../css/login.css";
 import { currentVariables } from "../variables/generalVariables";
-import { login, getFrontendUser } from "../api";
+import { login } from "../api";   // ✅ removed getFrontendUser
+import { standardPermissions } from "../variables/permissions";
 
 const LoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   const [username, setUsername] = useState("");
@@ -17,25 +17,22 @@ const LoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
     console.log("🚀 Submitting login with:", username);
 
     try {
-      // Authenticate and get token
-      const { access } = await login(username, password);
+      // Authenticate and get tokens
+      const { access, refresh } = await login(username, password);
 
       console.log("✅ JWT recebido:", access);
 
-      // Store JWT in memory and localStorage
-      axios.defaults.headers.common["Authorization"] = `Bearer ${access}`;
-      localStorage.setItem("token", access);
-      currentVariables.user.token = access;
+      // Store tokens in localStorage
+      localStorage.setItem("access", access);
+      localStorage.setItem("refresh", refresh);
 
-      // Fetch full user object from Django API
-      const frontendUser = await getFrontendUser(username);
-
+      // Update currentVariables with basic info
       currentVariables.user = {
-        ...currentVariables.user,
+        token: access,
         email: username,
-        nome: frontendUser.name,
-        userPermissions: frontendUser.userPermissions,
-        acesso_a_fundos: frontendUser.acesso_a_fundos,
+        nome: username,
+        userPermissions: standardPermissions,  
+        acesso_a_fundos: {},   // placeholder
       };
 
       console.log("✅ currentVariables atualizados:", currentVariables);

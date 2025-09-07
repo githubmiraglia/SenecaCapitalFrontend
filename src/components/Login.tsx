@@ -9,14 +9,17 @@ import {
   Alert,
   Paper,
 } from "@mui/material";
-import { setUserContextFromLoginResponse, currentVariables } from "../variables/generalVariables";
+import {
+  setUserContextFromLoginResponse,
+  currentVariables,
+} from "../variables/generalVariables";
 
 interface LoginProps {
   onLogin: () => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");  // ✅ renamed from email
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
@@ -25,20 +28,22 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   }, [onLogin]);
 
   const handleLogin = async (e: React.FormEvent) => {
-    console.log("🟢 SUBMITTING FORM"); // Confirm form is submitting
     e.preventDefault();
     setError(null);
-    console.log("🚀 handleLogin triggered with email:", email);
+
+    console.log("🚀 handleLogin triggered with username:", username);
 
     try {
-      const data = await login(email, password);
+      const data = await login(username, password); // ✅ pass username, not email
       console.log("🔐 Login API response:", data);
+
+      // Save tokens consistently
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
 
       setUserContextFromLoginResponse(data);
       console.log("📦 currentVariables after login set:", currentVariables);
 
-      console.log("📲 Calling onLogin from Login.tsx...");
-      console.log(onLogin);
       onLogin(); // Callback to App.tsx
     } catch (err: any) {
       console.error("❌ Login error caught:", err);
@@ -65,12 +70,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
           <TextField
-            label="Email"
+            label="Usuário"
             variant="outlined"
-            type="email"
             fullWidth
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
           />
           <TextField
             label="Senha"
@@ -85,7 +89,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             variant="contained"
             color="primary"
             fullWidth
-            onClick={() => console.log("🖱️ Entrar button clicked")}
           >
             Entrar
           </Button>

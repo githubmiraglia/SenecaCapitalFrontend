@@ -7,15 +7,21 @@ import { navigationMap } from "../variables/navigationMap";
 import { currentVariables } from "../variables/generalVariables";
 import { AcessoAFundos, UserPermissions } from "../types/Types";
 
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
-// ✅ Fix: correct mapping for special cases
+// Converts strings like "cri-operacoes", "tabelas_backend", "foo/bar"
+// into PascalCase filenames like "CriOperacoes", "TabelasBackend", "FooBar"
 const normalizeComponentName = (name: string) => {
   const customMap: Record<string, string> = {
     todososdados: "TodosOsDados",
     tabelasdoservidor: "Tabelas_do_servidor",
   };
-  return customMap[name.toLowerCase()] || capitalize(name);
+  const key = name.toLowerCase();
+  if (customMap[key]) return customMap[key];
+
+  return name
+    .split(/[\/_\-]/g)
+    .filter(Boolean)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join("");
 };
 
 const hasChildren = (node: any): node is { children: Record<string, any> } =>
@@ -36,18 +42,35 @@ const App: React.FC = () => {
     const routes: any[] = [];
 
     Object.entries(navigationMap).forEach(([sectionKey, sectionValue]) => {
-      if (!hasChildren(sectionValue)) return;
+      // Top-level node without children
+      if (!hasChildren(sectionValue)) {
+        const Component = lazy(() =>
+          import(/* @vite-ignore */ `../routes/${sectionKey}/${normalizeComponentName(sectionKey)}`)
+        );
 
+        routes.push({
+          path: `/${sectionKey.toLowerCase()}`, // absolute path
+          element: (
+            <React.Suspense fallback={<div>Loading…</div>}>
+              <Component />
+            </React.Suspense>
+          ),
+        });
+        return;
+      }
+
+      // Children (2nd level)
       Object.entries(sectionValue.children).forEach(([childKey, childValue]) => {
         const basePath = `${sectionKey}/${childKey}`;
 
         if (!hasChildren(childValue)) {
-          // ✅ Corrected relative path
           const Component = lazy(() =>
-            import(`../routes/${sectionKey}/${normalizeComponentName(childKey)}`)
+            import(
+              /* @vite-ignore */ `../routes/${sectionKey}/${normalizeComponentName(childKey)}`
+            )
           );
           routes.push({
-            path: basePath,
+            path: `/${basePath.toLowerCase()}`, // absolute path
             element: (
               <React.Suspense fallback={<div>Loading…</div>}>
                 <Component />
@@ -57,14 +80,17 @@ const App: React.FC = () => {
           return;
         }
 
-        Object.entries(childValue.children).forEach(([grandKey, _]) => {
+        // Grandchildren (3rd level)
+        Object.entries(childValue.children).forEach(([grandKey]) => {
           const fullPath = `${sectionKey}/${childKey}/${grandKey}`;
-          const componentPath = `../routes/${sectionKey}/${childKey}/${normalizeComponentName(grandKey)}`;
+          const componentPath = `../routes/${sectionKey}/${childKey}/${normalizeComponentName(
+            grandKey
+          )}`;
 
-          // ✅ Corrected relative path
-          const Component = lazy(() => import(componentPath));
+          const Component = lazy(() => import(/* @vite-ignore */ componentPath));
+
           routes.push({
-            path: fullPath,
+            path: `/${fullPath.toLowerCase()}`, // absolute path
             element: (
               <React.Suspense fallback={<div>Loading…</div>}>
                 <Component />
@@ -75,6 +101,8 @@ const App: React.FC = () => {
       });
     });
 
+    // Debug: see which paths were built
+    console.log("Routes:", routes.map((r) => r.path));
     return routes;
   };
 

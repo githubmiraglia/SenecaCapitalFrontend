@@ -1,0 +1,85 @@
+.robo-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh; /* full page center */
+}
+
+.robo-card {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.robo-title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.robo-button {
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background: #4f46e5;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.robo-button:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79,70,229,0.4);
+}
+
+.robo-button:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+
+.robo-error {
+  color: red;
+  margin-top: 15px;
+}
+
+.robo-results {
+  margin-top: 25px;
+  text-align: left;
+}
+
+.robo-result {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  margin: 6px 0;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.robo-result.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #34d399;
+}
+
+.robo-result.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #f87171;
+}
+
+.script-name {
+  font-weight: 600;
+}
+
+.status {
+  font-weight: bold;
+}

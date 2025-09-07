@@ -15,7 +15,7 @@ import { currentVariables } from "./variables/generalVariables";
 const BASE_URL =
   import.meta.env.VITE_API_BASE ||
   import.meta.env.VITE_API_URL ||
-  "http://localhost:8000";
+  "http://localhost:8000"; // ✅ fixed missing colon
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -25,8 +25,8 @@ export const api = axios.create({
 // Attach JWT automatically if present
 api.interceptors.request.use((config) => {
   const token =
-    localStorage.getItem("access") ||  // preferred SimpleJWT key
-    localStorage.getItem("token") ||   // fallback
+    localStorage.getItem("access") || // preferred SimpleJWT key
+    localStorage.getItem("token") || // fallback
     "";
   if (token) {
     config.headers = config.headers || {};
@@ -86,7 +86,7 @@ export const login = async (
 };
 
 // -------------------------------------------------------
-// Usuários (samples you already had)
+// Usuários
 // -------------------------------------------------------
 export interface UsuarioResponse {
   id: number;
@@ -158,7 +158,7 @@ export const deleteUsuario = async (
 };
 
 // -------------------------------------------------------
-// Fundos / Classes (unchanged patterns)
+// Fundos / Classes
 // -------------------------------------------------------
 export async function getFundoList(): Promise<{ id: string; nome: string }[]> {
   const response = await api.get("/api/fundos");
@@ -222,7 +222,7 @@ export async function fetchFileFromServer(fullPath: string): Promise<Blob> {
 }
 
 // -------------------------------------------------------
-// Spreadsheet/demonstrativos (unchanged)
+// Spreadsheet/demonstrativos
 // -------------------------------------------------------
 export interface SubcategoriasLinhas {
   titulo: string;
@@ -297,16 +297,77 @@ export const getDadosDaTabela = async (
 };
 
 // -------------------------------------------------------
-// Spreadsheet upload (example you had)
+// Spreadsheet upload → Django upsert
 // -------------------------------------------------------
+const headerMap: Record<string, string> = {
+  "Código IF": "codigo_if",
+  "Operação": "operacao",
+  "Securitizadora": "securitizadora",
+  "Classe Título": "classe_titulo",
+  "Emissão": "emissao",
+  "Série": "serie",
+  "Data Emissão": "data_emissao",
+  "Montante Emitido": "montante_emitido",
+  "Remuneração": "remuneracao",
+  "Spread a.a.": "spread_aa",
+  "Prazo (meses)": "prazo_meses",
+  "Ativo Lastro": "ativo_lastro",
+  "Tipo Devedor": "tipo_devedor",
+  "Agente Fiduciário": "agente_fiduciario",
+  "Tipo Oferta": "tipo_oferta",
+  "Regime Fiduciário": "regime_fiduciario",
+  "Pulverizado": "pulverizado",
+  "Qtd Emitida": "qtd_emitida",
+  "Segmento Imobiliário": "segmento_imobiliario",
+  "Certificação ESG": "certificacao_esg",
+  "Agência Cert. ESG": "agencia_certificadora_esg",
+  "Contrato Lastro": "contrato_lastro",
+  "ISIN": "isin",
+  "Cedentes": "cedentes",
+
+  // 🔑 critical mappings for your screenshot
+  "Líder Distribuição": "lider_distribuicao",
+  "Carência Principal (meses)": "carencia_principal_meses",
+  "Frequência Principal": "frequencia_principal",
+  "Tabela Juros": "tabela_juros",
+  "Frequência Juros": "frequencia_juros",
+  "Carência Juros (meses)": "carencia_juros_meses",
+  "Método Principal": "metodo_principal",
+  "Período Integralização": "periodo_integralizacao",
+  "Frequência Integralização": "frequencia_integralizacao",
+  "Duration": "duration",
+  "Spread": "spread",
+  "Taxa": "taxa"
+};
+
+
 export async function uploadSpreadsheetData(
   data: Record<string, string | number | null>[],
   headers: string[]
-): Promise<void> {
-  const payload = { headers, data };
-  await api.post("/tabelas/upload-sheet", payload, {
-    headers: { "Content-Type": "application/json" },
+): Promise<CRIOperacao[]> {
+  const mappedData = data.map((row) => {
+    const mapped: Record<string, string | number | null> = {};
+    for (const [key, value] of Object.entries(row)) {
+      mapped[headerMap[key] || key] = value;
+    }
+    return mapped;
   });
+
+  console.log("⬆️ Sending payload to Django /api/crioperacoes/upsert/:", mappedData);
+
+  // ✅ Send updates
+  await api.post(
+    `/api/crioperacoes/upsert/`,
+    {
+      unique_by: "codigo_if",
+      rows: mappedData,
+    },
+    { headers: { "Content-Type": "application/json" } }
+  );
+
+  // ✅ Immediately fetch fresh rows from backend
+  const response = await api.get<CRIOperacao[]>("/api/crioperacoes/");
+  return response.data;
 }
 
 // -------------------------------------------------------
@@ -322,3 +383,66 @@ export const uploadCnabLayoutPdf = async (formData: FormData) => {
     },
   });
 };
+
+// -------------------------------------------------------
+// CRI Operações
+// -------------------------------------------------------
+export interface CRIOperacao {
+  id: number;
+  codigo_if: string;
+  operacao: string;
+  securitizadora: string;
+  classe_titulo: string;
+  emissao: string;
+  serie: string;
+  data_emissao: string;
+  montante_emitido: number;
+  remuneracao: string;
+  spread_aa: number;
+  prazo_meses: number;
+  ativo_lastro: string;
+  tipo_devedor: string;
+  agente_fiduciario: string;
+  tipo_oferta: string;
+  regime_fiduciario: string;
+  pulverizado: boolean;
+  qtd_emitida: number;
+  segmento_imobiliario: string;
+  certificacao_esg: string | null;
+  agencia_certificadora_esg: string | null;
+  contrato_lastro: string;
+  isin: string;
+  cedentes: string;
+  lider_distribuicao: string;
+  carencia_principal_meses: number;
+  frequencia_principal: string;
+  tabela_juros: string;
+  frequencia_juros: string;
+  metodo_principal: string;
+  periodo_integralizacao: string;
+  frequencia_integralizacao: string;
+  duration?: number;
+  spread?: number;
+  taxa?: number;
+}
+
+export async function getCRIOperacoes(): Promise<CRIOperacao[]> {
+  const response = await api.get("/api/crioperacoes/");
+  return response.data;
+}
+
+// -------------------------------------------------------
+// IPCA DIARIO
+// -------------------------------------------------------
+export interface IPCADiario {
+  id: number;
+  data: string;        // "YYYY-MM-DD"
+  index: string;       // índice
+  variacao_pct: string; // porcentagem
+}
+
+export async function getIPCADiario(): Promise<IPCADiario[]> {
+  const response = await api.get("/api/ipca-diario/"); // rota do Django
+  return response.data;
+}
+
