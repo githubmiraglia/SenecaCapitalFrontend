@@ -2,13 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="/favicon.ico" />
+
+    <!-- ✅ Always load favicon from root -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Web site created using React + Vite"
     />
+
+    <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="/logo192.png" />
 
     <!-- JSuites CSS (for toolbar icons/fonts) -->
@@ -17,7 +22,10 @@
       href="https://unpkg.com/jsuites@4/dist/jsuites.css"
     />
 
-    <link rel="stylesheet" href=" https://fonts.googleapis.com/css?family=Material+Icons" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Material+Icons"
+    />
 
     <!-- JSpreadsheet Pro CSS -->
     <link
@@ -25,10 +33,10 @@
       href="https://unpkg.com/jspreadsheet@11/dist/jspreadsheet.css"
     />
 
-    <title>React App</title>
+    <title>Seneca App</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
+    <!-- ❌ Removed /src/index.tsx (handled by Vite build) -->
   </body>
 </html>
