@@ -29,7 +29,7 @@ jobs:
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           ECR_REPO=$ACCOUNT_ID.dkr.ecr.${{ secrets.AWSREGION }}.amazonaws.com/seneca-frontend:latest
           echo "Building and pushing $ECR_REPO"
-          docker build -t seneca-frontend .
+          docker build --no-cache -t seneca-frontend .
           docker tag seneca-frontend:latest $ECR_REPO
           docker push $ECR_REPO
 
@@ -47,4 +47,5 @@ jobs:
           aws ecs update-service \
             --cluster seneca-cluster \
             --service seneca-frontend-service \
-            --force-new-deployment
+            --force-new-deployment \
+            --region ${{ secrets.AWSREGION }}
